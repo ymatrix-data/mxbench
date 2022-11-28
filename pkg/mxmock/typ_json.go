@@ -1,0 +1,64 @@
+package mxmock
+
+import (
+	"encoding/json"
+	"strings"
+
+	"github.com/brianvoe/gofakeit/v6"
+)
+
+type JSON struct {
+	BaseType
+
+	Name string `json:"name"`
+	Age  int    `json:"number" fake:"{number:1,100}"`
+}
+
+func NewJSON(colName string) Type {
+	return &JSON{
+		BaseType: NewBaseType(colName),
+	}
+}
+
+func (j *JSON) Random(keys ...string) string {
+	for _, key := range keys {
+		if key != j.colName {
+			continue
+		}
+		_ = gofakeit.Struct(j)
+		b, _ := json.Marshal(j)
+		return string(b)
+	}
+	return "{}"
+}
+
+type JSONs struct {
+	BaseType
+	jsons []*JSON
+}
+
+func NewJSONs(colName string) Type {
+	return &JSONs{
+		BaseType: NewBaseType(colName),
+		jsons:    []*JSON{NewJSON(colName).(*JSON)},
+	}
+}
+
+func (js JSONs) Random(keys ...string) string {
+	for _, key := range keys {
+		if key != js.colName {
+			continue
+		}
+		a := []string{}
+		for _, j := range js.jsons {
+			a = append(a, j.Random(keys...))
+		}
+		return "{\"" + strings.ReplaceAll(strings.Join(a, ","), "\"", "\\\"") + "\"}"
+	}
+	return "{}"
+}
+
+func (js JSONs) Parse(string) {}
+
+type JSONB = JSON
+type JSONBs = JSONs
