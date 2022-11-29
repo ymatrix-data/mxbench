@@ -35,11 +35,11 @@ func NewMXDBVersion(version string) (DBVersion, error) {
 	var dbversion DBVersion
 	var err error
 	dbversion.VersionString = version
-	if !strings.Contains(dbversion.VersionString, "YMatrix") {
+	if !strings.Contains(dbversion.VersionString, "MatrixDB") {
 		return dbversion, err
 	}
 
-	versionStart := strings.Index(dbversion.VersionString, "(YMatrix ") + len("(YMatrix ")
+	versionStart := strings.Index(dbversion.VersionString, "(MatrixDB ") + len("(MatrixDB ")
 	versionEnd := strings.Index(dbversion.VersionString, ")")
 	if versionStart >= 0 && versionEnd > versionStart {
 		dbversion.VersionString = dbversion.VersionString[versionStart:versionEnd]
