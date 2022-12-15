@@ -1,146 +1,127 @@
-# Contributing to mxbench
+# 给 mxbench 做贡献
 
-Welcome to MatrixBench world, here is a list of contributing guide for you. If you find something incorrect or missing
- content in the page, please submit an issue or PR to fix it.
+欢迎来到 MatrixBench 的世界，如果你想为它做贡献，请参考以下的开发者指南。
 
+## 你可以做什么
+“毋以善小而不为” —— 我们鼓励任何可以让本项目更好的行动。这在 Github 上可以通过提交 PR(Pull Request) 来实现。
 
-## What can you do 
-Every action to make the project better is encouraged. On GitHub, every improvement for the project could be via a PR 
-(short for pull request).
-
-* If you find a typo, try to fix it!
-* If you find a bug, try to fix it!
-* If you find some redundant codes, try to remove them!
-* If you find some test cases missing, try to add them!
-* If you could enhance a feature, please **DO NOT** hesitate!
-* If you find code implicit, try to add comments to make it clear!
-* If you find code ugly, try to refactor that!
-* If you can help to improve documents, it could not be better!
-* If you find document incorrect, just do it and fix that!
+* 如果你观察到了一处拼写错误，别犹豫，请随手提PR帮助我们改正！
+* 如果你发现了一个 bug, 就试试修复！
+* 如果你找到了一些冗余代码，来帮我们把它移除吧！
+* 如果你认为现有测试没能覆盖到某些case，为什么不顺手加上呢？
+* 如果你可以提升一个feature, 请 **不要** 犹豫!
+* 如果你感觉某段代码非常晦涩难懂，可以加一些注释提升易读性，因为别人也很可能与你有相同的感受。
+* 如果你嗅到了代码的“坏气味”，来吧，拿起重构的武器！
+* 甚至，如果你觉得文档有一些可以改进的地方，那太好了，改进它！
+* 文档若有不正确的地方，你的修复就是我们最渴求的！
 * ...
 
-Actually, it is impossible to list them completely. Just remember one principle:
+该列表无法穷举你所能作出的潜在贡献。所以只需记住一句话：
 
-**WE ARE LOOKING FORWARD TO ANY PR FROM YOU.**
+**我们期待你的PR！**
 
 
-## Contributing
-### Preparation
-Before you contribute, you need to register a Github ID. Prepare the following environment:
+## 贡献
+### 准备
+在你做出贡献之前, 你需要注册一个 Github ID. 你需要安装一下软件:
 * go
 * git
 
 ### Workflow
-We use the `master` branch as the development branch, which indicates that this is an unstable branch.
+我们使用 `master` 作为开发分支，这同时也意味着该分支不保证稳定，不建议运用于生产环境。
 
-Here is the workflow for contributors:
+以下是贡献者的 workflow：
 
-1. Fork to your own
-2. Clone fork to the local repository
-3. Create a new branch and work on it
-4. Keep your branch in sync
-5. Commit your changes (make sure your commit message concise)
-6. Push your commits to your forked repository
-7. Create a pull request
+1. Fork 一份 mxbench 仓库到自己的账户下；
+2. Clone 一份 fork 出的仓库到本地；
+3. 创建一个分支，并在该分支上工作；
+4. 因为上游仓库中也可能会有一些更新，所以你时不时需要为你的工作分支做一做同步；
+5. Commit 你的修改 （有关 Commit 一些规则，包括 Commit Message 和 Commit 内容等，相见[Commit 规则](#commit-规则)）
+6. 将 Commits 推送到你 Fork 出的远程仓库中；
+7. 创建一个PR.
 
-Please follow [Creating a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
-Please make sure the PR has a corresponding issue.
+创建PR请遵循 Github 官方文档 [Creating a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+请保证每个PR都有一个对应的 issue.
 
-After creating a PR, one or more reviewers will be assigned to the pull request.
-The reviewers will review the code.
+创建 PR 之后，一名或多名 code reviewers 会被分配至此PR进行代码审查。
+在 PR 通过代码审查即将 Merge 之际，请选择 `Squash And Merge` 选项， 则该 PR 下的各 Commits 会被 Squash 成一条 Commit。
 
-Before merging a PR, squash any fix review feedback, typo, merged, and rebased sorts of commits.
-The final commit message should be clear and concise.
-
-### Compile
-Go to the project root directory which you cloned and execute compile:
+### 编译
+进入该项目的根目录并执行以下命令进行编译:
 ```bash
-make
+make build
 ```
 
-If you compile the Linux package on the Mac operating system, you can do:
-```bash
-make build_linux
-```
-
-If you compile the mxbench image, you can do:
-```bash
-make build_image
-```
-clean compilation:
+清理:
 ```bash
 make clean
 ```
 
-### Code Style
-See details of [CODE STYLE](./docs/code_styles.md)
+### 代码风格
+请参见 [Uber Go Style Guide](https://github.com/uber-go/guide/blob/master/style.md)
 
-### Commit Rules
+### Commit 规则
 #### Commit Message
 
-Commit message could help reviewers better understand what is the purpose of submitted PR. It could help accelerate the code review procedure as well. We encourage contributors to use **EXPLICIT** commit message rather than an ambiguous message. In general, we advocate the following commit message type:
+Commit message 可以帮助代码审查者更好地理解提交该PR的目的，并可以加速审查过程。代码贡献者应使用清晰的 commit message, 避免歧义。
 
-* feat: A new feature
-* fix: A bug fix
-* docs: Documentation only changes
-* style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-* refactor: A code change that neither fixes a bug or adds a feature
-* perf: A code change that improves performance
-* test: Adding missing or correcting existing tests
-* chore: Changes to the build process or auxiliary tools and libraries such as documentation generation
+以下几条规则可以帮助大家写出一个专业的Commit Message：
+1. 使用英文描述
+2. Commit message分为标题和正文两部分
+3. 标题和正文之间用空行隔开
+4. 标题首字母大写
+5. 标题尽量使用动词语境，例如Fix xxx, Remove xxx, Enable xxx
+6. 标题尽量不超过50个字符，正文每行尽量不超过72字符
+7. 正文的描述可以采用下面两种格式之一或者两者结合的格式：
+  1. What changed + Why: 阐述这个commit做了哪些改动，阐述为什么要这么改动。
+  2. What is the problem + How to resolve: 阐述问题及相关背景，阐述怎么解决这个问题。
 
-On the other side, we discourage contributors from committing message like the following ways:
 
+一般而言，我们鼓励以下的 commit message 风格。
+
+* feat: 一个新的 feature
+* fix: 一个 bug 修复
+* docs: 只对文档做出修改
+* style: 不改变代码实质内容，只涉及风格
+* refactor: 代码重构，即不涉及 bug 修复，又不涉及 feature 开发
+* perf: 提升性能的代码改进
+* test: 添加测试用例或改进现有测试
+* chore: 对一些项目构建过程和辅助工具做一些改动
+
+另一方面，请避免以下 commit message:
 * ~~fix bug~~
 * ~~update~~
 * ~~add doc~~
 
-If you get lost, please see [How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/) for a start.
+更多信息可以可以参考 [How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/).
 
-#### Commit Content
+#### Commit 内容
 
-Commit content represents all content changes included in one commit. We had better include things in one single commit which could support the reviewer's complete review without any other commits' help. In other word, contents in one single commit can pass the CI to avoid code mess. In brief, there are two minor rules for us to keep in mind:
-
-* avoid very large change in a commit;
-* complete and reviewable for each commit.
-
-No matter commit message or commit content, we do take more emphasis on code review.
-
+* 避免非常大的单个 Commit
+* 避免在单个 Commit 中杂糅多个主题
+* 每个 Commit 要完整且可审查。
 
 ### Pull Request
-We use [GitHub Issues](https://github.com/mxbench-io/mxbench/issues) and [Pull Requests](https://github.com/mxbench-io/mxbench/pulls) for trackers.
+我们使用 [GitHub Issues](https://github.com/ymatrix-data/mxbench/issues) 以及 [Pull Requests](https://github.com/ymatrix-data/mxbench/pulls) 分别记录、追踪 issues 和 PR.
 
-If you find a typo in document, find a bug in code, or want new features, or want to give suggestions,
-you can [open an issue on GitHub](https://github.com/mxbench-io/mxbench/issues/new) to report it.
-Please follow the guideline message in the issue template.
+如果你发现文档中的拼写错误或错别字，发现代码bug，或者想提一个新需求或提一些建议，你可以[在 Github 上创建一个新的 issue](https://github.com/ymatrix-data/mxbench/issues/new) 来告知我们。
 
-If you want to contribute, please follow the [contribution workflow](#Workflow) and create a new pull request.
-If your PR contains large changes, e.g. component refactor or new components, please write detailed documents
-about its design and usage.
+如果你想做一些贡献，请遵循 [workflow](#Workflow) 描述的步骤进行，以创建一个新的 PR.
+如果你的 PR 涉及到比较大规模的改动，例如组件重构或添加一个新的组件，请为它撰写详细的设计文档和使用文档。
 
-Note that a single PR should not be too large. If heavy changes are required, it's better to separate the changes
-to a few individual PRs.
-
+之前已经提到，我们要避免过大的单个 PR. 可以考虑把它拆分成若干个 PR 进行提交。
 
 ### Code Review
-All code should be well reviewed by one or more committers. Some principles:
+所有需要提交的代码都必须经过一名或多名代码审查者的审查。有一些原则：
 
-- Readability: Important code should be well-documented. Comply with our code style.
-- Elegance: New functions, classes or components should be well designed.
-- Testability: Important code should be well-tested (high unit test coverage).
+- 可读: 重要的代码应该像文档一样可阅读；
+- 优雅: 新函数，结构体或组件应该拥有良好的设计；
+- 可测试: 重要代码应该拥有高单元测试覆盖率。
 
-## Others
-### Code of Conduct
-*"In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to make 
-participation in our project and our community a harassment-free experience for everyone, regardless of age, body 
-size, disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, 
-socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation..."*
+## 其他
 
-See details of [CONTRIBUTOR COVENANT CODE OF CONDUCT](https://github.com/mxbench-io/mxbench/blob/master/CODE_OF_CONDUCT.md)
-
-### Sign your work
-The sign-off is a simple line at the end of the explanation for the patch, which certifies that you wrote it or otherwise have the right to pass it on as an open-source patch.
-The rules are pretty simple: if you can certify the below (from [developercertificate.org](http://developercertificate.org/)):
+### 为你的工作署名
+规则很简单: 如果你能够保证一下条款 (from [developercertificate.org](http://developercertificate.org/)):
 
 ```
 Developer Certificate of Origin
@@ -180,12 +161,13 @@ By making a contribution to this project, I certify that:
     this project or the open source license(s) involved.
 ```
 
-Then you just add a line to every git commit message:
+那么每次只需在 commit message 末尾添加以下一行文字:
 
 ```
 Signed-off-by: Joe Smith <joe.smith@email.com>
 ```
 
-Use your real name (sorry, no pseudonyms or anonymous contributions.)
+使用你的真名。
 
-If you set your `user.name` and `user.email` git configs, you can sign your commit automatically with `git commit -s`.
+如果你在 git configs 配置了 `user.name` 以及 `user.email`, 你可以通过  `git commit -s` 自动为你的 commit 署名.
+
