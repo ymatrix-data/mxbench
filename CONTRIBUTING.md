@@ -36,15 +36,16 @@
 2. Clone 一份 fork 出的仓库到本地；
 3. 创建一个分支，并在该分支上工作；
 4. 因为上游仓库中也可能会有一些更新，所以你时不时需要为你的工作分支做一做同步；
-5. Commit 你的修改 （有关 Commit 一些规则，包括 Commit Message 和 Commit 内容等，相见[Commit 规则](#commit-规则)）
+5. Commit 你的修改 （有关 Commit 一些规则，包括 Commit Message 和 Commit 内容等，详见[Commit 规则](#commit-规则)）
 6. 将 Commits 推送到你 Fork 出的远程仓库中；
 7. 创建一个PR.
 
 创建PR请遵循 Github 官方文档 [Creating a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 请保证每个PR都有一个对应的 issue.
 
-创建 PR 之后，一名或多名 code reviewers 会被分配至此PR进行代码审查。
-在 PR 通过代码审查即将 Merge 之际，请选择 `Squash And Merge` 选项， 则该 PR 下的各 Commits 会被 Squash 成一条 Commit。
+创建 PR 之后，一名或多名 code reviewers 会被分配至此PR进行代码审查。代码贡献者也可以自行指定。
+在获得至少一个来自仓库维护者的 `Approve`之后， 该 PR 下的各 Commits 会被 Squash 成一条 Commit。
+
 
 ### 编译
 进入该项目的根目录并执行以下命令进行编译:
@@ -112,7 +113,7 @@ Commit message 可以帮助代码审查者更好地理解提交该PR的目的，
 之前已经提到，我们要避免过大的单个 PR. 可以考虑把它拆分成若干个 PR 进行提交。
 
 ### Code Review
-所有需要提交的代码都必须经过一名或多名代码审查者的审查。有一些原则：
+所有需要提交的代码都必须经过一名或多名代码审查者的审查，并至少得到本仓库维护者的 1 个 `Approve` 才能够 merge。有一些原则：
 
 - 可读: 重要的代码应该像文档一样可阅读；
 - 优雅: 新函数，结构体或组件应该拥有良好的设计；
