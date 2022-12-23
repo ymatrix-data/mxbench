@@ -107,12 +107,12 @@ func (g *Generator) Close() error {
 	g.cancelFunc()
 	g.wg.Wait()
 
-	log.Info("[Generator.TELEMATICS] Gen time: %s", time.Duration(accGenTime))
-	log.Info("[Generator.TELEMATICS] Write time: %s", time.Duration(accWriteTime))
-	log.Info("[Generator.TELEMATICS] Misc time1: %s", time.Duration(accMiscTime1))
-	log.Info("[Generator.TELEMATICS] Write Cnt: %d", accWriteCnt)
-	log.Info("[Generator.TELEMATICS] Acc Size: %d", accWriteSize)
-	log.Info("[Generator.TELEMATICS] Max Size: %d", maxWriteSize)
+	log.Verbose("[Generator.TELEMATICS] Gen time: %s", time.Duration(accGenTime))
+	log.Verbose("[Generator.TELEMATICS] Write time: %s", time.Duration(accWriteTime))
+	log.Verbose("[Generator.TELEMATICS] Misc time1: %s", time.Duration(accMiscTime1))
+	log.Verbose("[Generator.TELEMATICS] Write Cnt: %d", accWriteCnt)
+	log.Verbose("[Generator.TELEMATICS] Acc Size: %d", accWriteSize)
+	log.Verbose("[Generator.TELEMATICS] Max Size: %d", maxWriteSize)
 
 	return nil
 }

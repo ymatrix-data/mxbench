@@ -337,12 +337,12 @@ func (w *Writer) Stop() error {
 	w.cancelFunc()
 	w.globalWG.Wait()
 
-	log.Info("Parallel: %d", w.hCfg.Parallel)
-	log.Info("Acc Post: %s", time.Duration(gAccPost))
-	log.Info("Num Post: %d", gNPost)
-	log.Info("Slowest Post: %s", time.Duration(gMaxPostTime))
-	log.Info("Acc Post Size: %d", gAccSize)
-	log.Info("Max Post Size: %d", gMaxSize)
+	log.Verbose("Parallel: %d", w.hCfg.Parallel)
+	log.Verbose("Acc Post: %s", time.Duration(gAccPost))
+	log.Verbose("Num Post: %d", gNPost)
+	log.Verbose("Slowest Post: %s", time.Duration(gMaxPostTime))
+	log.Verbose("Acc Post Size: %d", gAccSize)
+	log.Verbose("Max Post Size: %d", gMaxSize)
 
 	return nil
 }
