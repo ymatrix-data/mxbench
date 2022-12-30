@@ -5,7 +5,7 @@ all: build
 GINKGO:=go run github.com/onsi/ginkgo/ginkgo
 REPO_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-GIT_VERSION:=$(shell git tag --sort=-creatordate --points-at HEAD 'v*' | tail -n 1)
+GIT_VERSION:=$(shell git tag --sort=-creatordate --points-at HEAD "${TAG_FILTER}*" | tail -n 1)
 ifeq ($(GIT_VERSION),)
 GIT_VERSION:=$(shell git describe --abbrev=0 --tags)
 ifeq ($(GIT_VERSION),)
