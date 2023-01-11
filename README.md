@@ -77,7 +77,7 @@ $ cd <YMatrix安装目录>
   [benchmark.telematics]
     # 数组，查询并发度
     benchmark-parallel = [8]
-    # 提供的3个查询：单车最新值，10车最新值，单车明细
+    # 跑一个查询：单车明细查询
     benchmark-run-query-names = ["SINGLE_TAG_DETAIL_QUERY" ]
     # 每轮每条query的跑的次数或时间，让时间生效需要将次数设置为0，如下：
     benchmark-run-times = 0
@@ -491,7 +491,7 @@ $ cd <YMatrix安装目录>
   [generator.telematics]
     # 每个设备每个时间点的指标，分几条数据上传，最终在DB被upsert成1个tuple
     generator-batch-size = 1
-    # 延迟上传的数据生成比例（1～100），时间戳往前推1小时
+    # 延迟上传的数据生成比例（1～100），时间戳往前推24小时
     generator-disorder-ratio = 0
     # 生成数据的空值率（1～100）
     generator-empty-value-ratio = 90
@@ -705,7 +705,7 @@ global 配置里:
 └─────────────────┴───────────────┘
 ```
 
-- Pxx 代表xx百分位数的延迟。例如P75是14.35972ms，说明执行query的次数中，有25%延迟高于它，75%低于它. P50即中位数。
+- Pxx 代表xx百分位数的延迟。例如P75是14.35ms，说明执行query的次数中，有25%延迟高于它，75%低于它. P50即中位数。
 - TPS： 每秒执行query的次数.
 
 汇总报告：
