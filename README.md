@@ -77,7 +77,7 @@ $ cd <YMatrix安装目录>
   [benchmark.telematics]
     # 数组，查询并发度
     benchmark-parallel = [8]
-    # 提供的3个查询：单车最新值，10车最新值，单车明细
+    # 跑一个查询：单车明细查询
     benchmark-run-query-names = ["SINGLE_TAG_DETAIL_QUERY" ]
     # 每轮每条query的跑的次数或时间，让时间生效需要将次数设置为0，如下：
     benchmark-run-times = 0
