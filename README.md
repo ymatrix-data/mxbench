@@ -491,7 +491,7 @@ $ cd <YMatrix安装目录>
   [generator.telematics]
     # 每个设备每个时间点的指标，分几条数据上传，最终在DB被upsert成1个tuple
     generator-batch-size = 1
-    # 延迟上传的数据生成比例（1～100），时间戳往前推1小时
+    # 延迟上传的数据生成比例（1～100），时间戳往前推24小时
     generator-disorder-ratio = 0
     # 生成数据的空值率（1～100）
     generator-empty-value-ratio = 90
