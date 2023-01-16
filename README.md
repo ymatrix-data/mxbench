@@ -264,11 +264,11 @@ $ cd <YMatrix安装目录>
     # 默认为1. 即指标信息不做拆分。
     generator-batch-size = 1
 
-    # 延迟上报数据的比例。取值1～100.
+    # 延迟上报数据的比例。取值0～100.
     # 默认值为0, 即没有延迟上报的数据。
     generator-disorder-ratio = 0
 
-    # 每行数据的空值率。取值为1～100. 默认为90%，即90%的指标都将是空值。
+    # 每行数据的空值率。取值为0～100. 默认为90%，即90%的指标都将是空值。
     generator-empty-value-ratio = 90
 
     # 指标数据随机度, 分为OFF/S/M/L四档。默认为OFF。
@@ -491,9 +491,9 @@ $ cd <YMatrix安装目录>
   [generator.telematics]
     # 每个设备每个时间点的指标，分几条数据上传，最终在DB被upsert成1个tuple
     generator-batch-size = 1
-    # 延迟上传的数据生成比例（1～100），时间戳往前推24小时
+    # 延迟上传的数据生成比例（0～100），时间戳往前推24小时
     generator-disorder-ratio = 0
-    # 生成数据的空值率（1～100）
+    # 生成数据的空值率（0～100）
     generator-empty-value-ratio = 90
     # 生成数据的随机度， 有OFF/S/M/L几档，默认关闭"OFF"
     generator-randomness = "OFF"
