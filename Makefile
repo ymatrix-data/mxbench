@@ -2,7 +2,7 @@ all: build
 
 .PHONY: build linux_amd64 linux_arm64 clean lint race e2e test clean release
 
-GINKGO:=go run github.com/onsi/ginkgo/ginkgo
+GINKGO=$(GOPATH)/bin/ginkgo
 REPO_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 GIT_VERSION:=$(shell git tag --sort=-creatordate --points-at HEAD "${TAG_FILTER}*" | tail -n 1)
@@ -20,6 +20,9 @@ MAIN_VERSION_STR:=github.com/ymatrix-data/mxbench/internal/util.VersionStr=$(GIT
 MAIN_BRANCH_STR:=github.com/ymatrix-data/mxbench/internal/util.BranchStr=$(GIT_BRANCH)
 MAIN_COMMIT_STR:=github.com/ymatrix-data/mxbench/internal/util.CommitStr=$(GIT_COMMIT)
 LDFLAGS:=-X $(MAIN_VERSION_STR) -X $(MAIN_BRANCH_STR) -X $(MAIN_COMMIT_STR)
+
+$(GINKGO) :
+		$(GO_ENV) go install github.com/onsi/ginkgo/ginkgo
 
 build:
 	go build -o ./bin/mxbench -ldflags "$(LDFLAGS)" ./cmd/mxbench/main.go
@@ -40,8 +43,8 @@ clean:
 lint:
 	golangci-lint -v run
 
-test:
-	$(GINKGO) -race ./internal/...
+test: $(GINKGO)
+	ginkgo -race ./internal/...
 
 e2e:
 	go build -tags e2e -ldflags "$(LDFLAGS)" -o mxbench_e2e ./cmd/mxbench
