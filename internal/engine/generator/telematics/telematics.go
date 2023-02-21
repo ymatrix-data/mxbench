@@ -110,6 +110,7 @@ func (g *Generator) Close() error {
 	log.Verbose("[Generator.TELEMATICS] Gen time: %s", time.Duration(accGenTime))
 	log.Verbose("[Generator.TELEMATICS] Write time: %s", time.Duration(accWriteTime))
 	log.Verbose("[Generator.TELEMATICS] Misc time1: %s", time.Duration(accMiscTime1))
+	log.Verbose("[Generator.TELEMATICS] Misc time2: %s", time.Duration(accMiscTime2))
 	log.Verbose("[Generator.TELEMATICS] Write Cnt: %d", accWriteCnt)
 	log.Verbose("[Generator.TELEMATICS] Acc Size: %d", accWriteSize)
 	log.Verbose("[Generator.TELEMATICS] Max Size: %d", maxWriteSize)
