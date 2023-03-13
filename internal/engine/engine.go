@@ -334,7 +334,9 @@ func (e *Engine) Run() error {
 	}
 
 	// no writing data
-	if e.Config.GeneratorCfg.Plugin == "nil" || e.Config.WriterCfg.Plugin == "nil" {
+	noWirterOrGenerator := e.Config.GeneratorCfg.Plugin == "nil" || e.Config.WriterCfg.Plugin == "nil"
+	qeuryOnlyMode := noWirterOrGenerator && !e.Config.GlobalCfg.Dump
+	if qeuryOnlyMode {
 		e.execDDLFunc = func() error { return nil }
 	}
 
@@ -358,7 +360,7 @@ func (e *Engine) Run() error {
 		}
 	}
 
-	if e.Config.GeneratorCfg.Plugin == "nil" || e.Config.WriterCfg.Plugin == "nil" {
+	if qeuryOnlyMode {
 		// When no writing data, get vin values from dest table
 		e.Metadata.Table.VinValues, err = e.getVinValuesFromTable()
 		if err != nil {
