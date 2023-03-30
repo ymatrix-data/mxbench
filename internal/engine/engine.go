@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ymatrix-data/mxbench/internal/engine/metadata"
 	"github.com/ymatrix-data/mxbench/internal/util"
 	"github.com/ymatrix-data/mxbench/internal/util/log"
@@ -253,13 +254,13 @@ func (e *Engine) GetFormattedSummary() {
 	if e.Config.GlobalCfg.Dump {
 		return
 	}
-	var row string
+	var row, prefix string
 	if stat := e.IWriter.GetStat(); stat != nil {
-		row = stat.GetFormattedSummary()
-		row += util.DELIMITER
+		prefix = stat.GetFormattedSummary("")
+		prefix += util.DELIMITER
 	}
 	if stat := e.IBenchmark.GetStat(); stat != nil {
-		row += stat.GetFormattedSummary()
+		row = stat.GetFormattedSummary(prefix)
 	}
 	// writer row to file
 	switch e.Config.GlobalCfg.ReportFormat {

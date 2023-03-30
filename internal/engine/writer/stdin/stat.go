@@ -75,7 +75,7 @@ func (s *Stat) GetSummary() string {
 
 // GetFormattedSummary is aimed at outputing statistics in certain format.
 // No data in will be rounded.
-func (s *Stat) GetFormattedSummary() string {
+func (s *Stat) GetFormattedSummary(string) string {
 	if s.volumeDesc.GetTableSizeFunc == nil {
 		return ""
 	}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
+
 	"github.com/ymatrix-data/mxbench/internal/util/log"
 )
 
@@ -24,7 +25,7 @@ type Stat interface {
 
 	GetName() string
 	GetSummary() string
-	GetFormattedSummary() string
+	GetFormattedSummary(prefix string) string
 	GetProgress() string
 	GetSubStats() []Stat
 
@@ -33,7 +34,7 @@ type Stat interface {
 
 func NewExecBenchStat(opt ExecBenchOption, query Query) *ExecBenchStat {
 	return &ExecBenchStat{
-		latencies:    make([]time.Duration, 0, 100*opt.Parallel), //100 is the default of run times
+		latencies:    make([]time.Duration, 0, 100*opt.Parallel), // 100 is the default of run times
 		opt:          opt,
 		query:        query,
 		reportFormat: ReportFormatJSON,
@@ -92,7 +93,7 @@ func (ebs *ExecBenchStat) GetSummary() string {
 
 // GetFormattedSummary is aimed at outputing statistics in certain format.
 // No data in will be rounded.
-func (ebs *ExecBenchStat) GetFormattedSummary() string {
+func (ebs *ExecBenchStat) GetFormattedSummary(string) string {
 	ebs.complete()
 	if len(ebs.latencies) == 0 {
 		return "not actually executed"
@@ -119,7 +120,7 @@ func (ebs *ExecBenchStat) GetSubStats() []Stat {
 
 func (ebs *ExecBenchStat) GetProgress() string {
 	if ebs.opt.RunTimes <= 0 {
-		//a little bit hack
+		// a little bit hack
 		progress := int(100*float64(ebs.TimeElapsed)/float64(ebs.opt.Duration)) + 1
 		if progress > 100 {
 			progress = 100
@@ -184,7 +185,7 @@ func (ebs *ExecBenchStat) GetCurrentProgress(_ ...interface{}) map[string]interf
 	// 2. calc finishedPercentage
 	percentage := 0
 	if ebs.opt.RunTimes <= 0 {
-		//a little bit hack
+		// a little bit hack
 		percentage = int(100*float64(ebs.TimeElapsed)/float64(ebs.opt.Duration)) + 1
 		if percentage > 100 {
 			percentage = 100

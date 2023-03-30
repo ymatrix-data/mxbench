@@ -9,6 +9,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/list"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
+
 	"github.com/ymatrix-data/mxbench/internal/engine"
 	"github.com/ymatrix-data/mxbench/internal/util"
 )
@@ -133,7 +134,7 @@ func (s *Stat) GetSummary() string {
 	return writer.Render()
 }
 
-func (s *Stat) GetFormattedSummary() string {
+func (s *Stat) GetFormattedSummary(prefix string) string {
 	presetQueryNum := len(s.config.RunQueryNames)
 	cusQueryNum := len(s.config.CustomQueries)
 	dataWidth := presetQueryNum + cusQueryNum
@@ -145,8 +146,8 @@ func (s *Stat) GetFormattedSummary() string {
 			if siIndex >= len(s.subStats) {
 				break
 			}
-			row := []string{strconv.Itoa(parallel), s.config.RunQueryNames[i], "", s.subStats[siIndex].GetFormattedSummary()}
-			rows += strings.Join(row, util.DELIMITER) + "\n"
+			row := []string{strconv.Itoa(parallel), s.config.RunQueryNames[i], "", s.subStats[siIndex].GetFormattedSummary("")}
+			rows += prefix + strings.Join(row, util.DELIMITER) + "\n"
 		}
 		// custom query stats
 		for i := 0; i < cusQueryNum; i++ {
@@ -154,8 +155,8 @@ func (s *Stat) GetFormattedSummary() string {
 			if siIndex >= len(s.subStats) {
 				break
 			}
-			row := []string{strconv.Itoa(parallel), _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1), s.config.CustomQueries[i], s.subStats[siIndex].GetFormattedSummary()}
-			rows += strings.Join(row, util.DELIMITER) + "\n"
+			row := []string{strconv.Itoa(parallel), _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1), s.config.CustomQueries[i], s.subStats[siIndex].GetFormattedSummary("")}
+			rows += prefix + strings.Join(row, util.DELIMITER) + "\n"
 		}
 	}
 	return rows
