@@ -21,7 +21,7 @@ func (s *Stat) GetSummary() string {
 	return ""
 }
 
-func (s *Stat) GetFormattedSummary(string) string {
+func (s *Stat) GetFormattedSummary() string {
 	return ""
 }
 

@@ -256,11 +256,11 @@ func (e *Engine) GetFormattedSummary() {
 	}
 	var row, prefix string
 	if stat := e.IWriter.GetStat(); stat != nil {
-		prefix = stat.GetFormattedSummary("")
+		prefix = stat.GetFormattedSummary()
 		prefix += util.DELIMITER
 	}
 	if stat := e.IBenchmark.GetStat(); stat != nil {
-		row = stat.GetFormattedSummary(prefix)
+		row = prefix + stat.GetFormattedSummary()
 	}
 	// writer row to file
 	switch e.Config.GlobalCfg.ReportFormat {

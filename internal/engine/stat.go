@@ -25,7 +25,7 @@ type Stat interface {
 
 	GetName() string
 	GetSummary() string
-	GetFormattedSummary(prefix string) string
+	GetFormattedSummary() string
 	GetProgress() string
 	GetSubStats() []Stat
 
@@ -93,7 +93,7 @@ func (ebs *ExecBenchStat) GetSummary() string {
 
 // GetFormattedSummary is aimed at outputing statistics in certain format.
 // No data in will be rounded.
-func (ebs *ExecBenchStat) GetFormattedSummary(string) string {
+func (ebs *ExecBenchStat) GetFormattedSummary() string {
 	ebs.complete()
 	if len(ebs.latencies) == 0 {
 		return "not actually executed"
