@@ -254,13 +254,13 @@ func (e *Engine) GetFormattedSummary() {
 	if e.Config.GlobalCfg.Dump {
 		return
 	}
-	var row, prefix string
+	var row string
 	if stat := e.IWriter.GetStat(); stat != nil {
-		prefix = stat.GetFormattedSummary()
-		prefix += util.DELIMITER
+		row = stat.GetFormattedSummary()
+		row += util.DELIMITER
 	}
 	if stat := e.IBenchmark.GetStat(); stat != nil {
-		row = prefix + stat.GetFormattedSummary()
+		row += stat.GetFormattedSummary()
 	}
 	// writer row to file
 	switch e.Config.GlobalCfg.ReportFormat {

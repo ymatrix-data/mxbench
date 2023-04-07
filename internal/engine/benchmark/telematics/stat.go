@@ -135,7 +135,6 @@ func (s *Stat) GetSummary() string {
 }
 
 type QueryInfo struct {
-	ParallelNum int    `json:"parallel_num"`
 	QueryName   string `json:"query_name"`
 	CustomQuery string `json:"custom_query"`
 	Stats       string `json:"stats"`
@@ -145,19 +144,18 @@ func (s *Stat) GetFormattedSummary() string {
 	presetQueryNum := len(s.config.RunQueryNames)
 	cusQueryNum := len(s.config.CustomQueries)
 	dataWidth := presetQueryNum + cusQueryNum
-	// rows := ""
+	var concurrency int
 	queryResult := map[string]QueryInfo{}
 
 	for rowNum, parallel := range s.config.Parallel {
+		concurrency = parallel
 		startIndex := rowNum * dataWidth
 		for i := 0; i < presetQueryNum; i++ {
 			siIndex := startIndex + i
 			if siIndex >= len(s.subStats) {
 				break
 			}
-			// row := []string{strconv.Itoa(parallel), s.config.RunQueryNames[i], "", s.subStats[siIndex].GetFormattedSummary()}
 			queryInfo := QueryInfo{
-				ParallelNum: parallel,
 				QueryName:   s.config.RunQueryNames[i],
 				CustomQuery: "",
 				Stats:       s.subStats[siIndex].GetFormattedSummary(),
@@ -171,22 +169,20 @@ func (s *Stat) GetFormattedSummary() string {
 				break
 			}
 			queryInfo := QueryInfo{
-				ParallelNum: parallel,
 				QueryName:   _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1),
 				CustomQuery: s.config.CustomQueries[i],
 				Stats:       s.subStats[siIndex].GetFormattedSummary(),
 			}
-			// row := []string{strconv.Itoa(parallel), _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1), s.config.CustomQueries[i], s.subStats[siIndex].GetFormattedSummary()}
-			// rows += "\"" + s.config.CustomQueries[i] + "\": " + strings.Join(row, util.DELIMITER) + ", "
 			queryResult[s.config.CustomQueries[i]] = queryInfo
 		}
 	}
-	res, err := json.Marshal(queryResult)
+	resStr, err := json.Marshal(queryResult)
 	if err != nil {
 		log.Error("Failed to tranfer object to json string: [%v]", err)
 		return ""
 	}
-	return string(res)
+	rows := strconv.Itoa(concurrency) + "|" + string(resStr) + "\n"
+	return rows
 
 }
 
