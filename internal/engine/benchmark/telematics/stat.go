@@ -9,8 +9,9 @@ import (
 	"github.com/jedib0t/go-pretty/v6/list"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
+
 	"github.com/ymatrix-data/mxbench/internal/engine"
-	"github.com/ymatrix-data/mxbench/internal/util"
+	"github.com/ymatrix-data/mxbench/internal/util/log"
 )
 
 type Stat struct {
@@ -133,20 +134,33 @@ func (s *Stat) GetSummary() string {
 	return writer.Render()
 }
 
+type QueryInfo struct {
+	QueryName   string `json:"query_name"`
+	CustomQuery string `json:"custom_query"`
+	Stats       string `json:"stats"`
+}
+
 func (s *Stat) GetFormattedSummary() string {
 	presetQueryNum := len(s.config.RunQueryNames)
 	cusQueryNum := len(s.config.CustomQueries)
 	dataWidth := presetQueryNum + cusQueryNum
-	rows := ""
+	var concurrency int
+	queryResult := map[string]QueryInfo{}
+
 	for rowNum, parallel := range s.config.Parallel {
+		concurrency = parallel
 		startIndex := rowNum * dataWidth
 		for i := 0; i < presetQueryNum; i++ {
 			siIndex := startIndex + i
 			if siIndex >= len(s.subStats) {
 				break
 			}
-			row := []string{strconv.Itoa(parallel), s.config.RunQueryNames[i], "", s.subStats[siIndex].GetFormattedSummary()}
-			rows += strings.Join(row, util.DELIMITER) + "\n"
+			queryInfo := QueryInfo{
+				QueryName:   s.config.RunQueryNames[i],
+				CustomQuery: "",
+				Stats:       s.subStats[siIndex].GetFormattedSummary(),
+			}
+			queryResult[s.config.RunQueryNames[i]] = queryInfo
 		}
 		// custom query stats
 		for i := 0; i < cusQueryNum; i++ {
@@ -154,10 +168,20 @@ func (s *Stat) GetFormattedSummary() string {
 			if siIndex >= len(s.subStats) {
 				break
 			}
-			row := []string{strconv.Itoa(parallel), _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1), s.config.CustomQueries[i], s.subStats[siIndex].GetFormattedSummary()}
-			rows += strings.Join(row, util.DELIMITER) + "\n"
+			queryInfo := QueryInfo{
+				QueryName:   _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1),
+				CustomQuery: s.config.CustomQueries[i],
+				Stats:       s.subStats[siIndex].GetFormattedSummary(),
+			}
+			queryResult[s.config.CustomQueries[i]] = queryInfo
 		}
 	}
+	resStr, err := json.Marshal(queryResult)
+	if err != nil {
+		log.Error("Failed to tranfer object to json string: [%v]", err)
+		return ""
+	}
+	rows := strconv.Itoa(concurrency) + "|" + string(resStr) + "\n"
 	return rows
 
 }

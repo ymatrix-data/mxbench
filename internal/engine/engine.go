@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ymatrix-data/mxbench/internal/engine/metadata"
 	"github.com/ymatrix-data/mxbench/internal/util"
 	"github.com/ymatrix-data/mxbench/internal/util/log"
