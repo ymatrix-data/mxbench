@@ -168,12 +168,13 @@ func (s *Stat) GetFormattedSummary() string {
 			if siIndex >= len(s.subStats) {
 				break
 			}
+			queryName := _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1)
 			queryInfo := QueryInfo{
-				QueryName:   _CUSTOM_QUERY_NAME_PREFIX + strconv.Itoa(i+1),
+				QueryName:   queryName,
 				CustomQuery: s.config.CustomQueries[i],
 				Stats:       s.subStats[siIndex].GetFormattedSummary(),
 			}
-			queryResult[s.config.CustomQueries[i]] = queryInfo
+			queryResult[queryName] = queryInfo
 		}
 	}
 	resStr, err := json.Marshal(queryResult)
