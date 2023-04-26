@@ -5,9 +5,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os/exec"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -16,6 +18,7 @@ import (
 	"github.com/ymatrix-data/mxbench/internal/engine"
 	"github.com/ymatrix-data/mxbench/internal/util"
 	"github.com/ymatrix-data/mxbench/internal/util/log"
+	"github.com/ymatrix-data/mxbench/internal/util/mxerror"
 )
 
 const (
@@ -59,6 +62,7 @@ type Config struct {
 	ProgressFormat           string `mapstructure:"writer-progress-format"`
 	ProgressIncludeTableSize bool   `mapstructure:"writer-progress-include-table-size"`
 	ProgressWithTimezone     bool   `mapstructure:"writer-progress-with-timezone"`
+	MxgateURL                string `mapstructure:"writer-mxgate-url"`
 }
 
 func (c *Config) getProgressTimeLayout() string {
@@ -89,13 +93,19 @@ type Writer struct {
 func NewWriter(cfg engine.WriterConfig) engine.IWriter {
 	hCfg := cfg.PluginConfig.(*Config)
 	ctx, cancelFunc := context.WithCancel(context.Background())
+	var urlStr string
+	if hCfg.MxgateURL != "" {
+		urlStr = hCfg.MxgateURL
+	} else {
+		urlStr = fmt.Sprintf("http://127.0.0.1:%d", _HTTP_PORT)
+	}
 	return &Writer{
 		hCfg:       hCfg,
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
 		finCh:      make(chan error, hCfg.Parallel),
 		batchCh:    make(chan *sendAndFeed, 100),
-		url:        fmt.Sprintf("http://127.0.0.1:%d", _HTTP_PORT),
+		url:        urlStr,
 		stat:       &Stat{},
 	}
 }
@@ -115,113 +125,117 @@ func (w *Writer) Start(cfg engine.Config, volumeDesc engine.VolumeDesc) (<-chan 
 	w.globalWG.Add(1)
 
 	go func() {
-		// TODO
-		defer w.globalWG.Done()
-
-		// TODO according tag num ... to decide the stream_prepared
-		// tableIdentifier := fmt.Sprintf("%s.%s", cfg.GlobalCfg.SchemaName, cfg.GlobalCfg.TableName)
-		// streamPrepared := w.hCfg.StreamPrepared
-		// interval := w.hCfg.Interval
-
-		// // TODO according tag num ... to decide the stream_prepared, interval etc.
-		// if streamPrepared < 0 {
-		// 	streamPrepared = 2
-		// }
-		// if interval < 0 {
-		// 	interval = 250
-		// }
-		// useGzip := "no"
-		// if w.hCfg.UseGzip {
-		// 	useGzip = "yes"
-		// }
-		// fs := Flags{
-		// 	"--source":          "http",
-		// 	"--format":          "csv",
-		// 	"--time-format":     "raw",
-		// 	"--http-port":       _HTTP_PORT,
-		// 	"--max-body-bytes":  _BATCH_SIZE * 2, // Avoid batchSize bigger than --max-body-bytes
-		// 	"--interval":        interval,
-		// 	"--stream-prepared": streamPrepared,
-		// 	"--use-gzip":        useGzip,
-
-		// 	"--db-database":    cfg.DB.Database,
-		// 	"--db-master-host": cfg.DB.MasterHost,
-		// 	"--db-master-port": cfg.DB.MasterPort,
-		// 	"--db-user":        cfg.DB.User,
-		// 	"--delimiter":      util.DELIMITER,
-		// 	"--target":         tableIdentifier,
-
-		// 	"--timing":                  "true",
-		// 	"--metrics-sample-interval": 15,
-
-		// 	// To benchmark generate speed
-		// 	// "--writer":    "nil",
-		// 	// "--transform": "nil",
-		// }
-
-		// var cmd *exec.Cmd
-		// cmd, w.gateOut, err = util.StartMxgate(w.hCfg.mxgatePath, fs.ToStr())
-		// // fmt.Println("mxgate:", cmd.String())
-		// if err != nil {
-		// 	startWG.Done()
-		// 	return
-		// }
-
 		defer func() {
+			w.globalWG.Done()
 			w.stat.stopAt = time.Now()
 			// Notify http writer finished
 			close(w.finCh)
 		}()
-		startWG.Done()
-		// func() {
-		// 	var out string
-		// 	var n int
-		// 	b := make([]byte, 1024)
-		// 	defer func() {
-		// 		startWG.Done()
-		// 		go func() {
-		// 			// consume gate stdout to prevent hang
-		// 			_, _ = io.ReadAll(w.gateOut)
-		// 		}()
-		// 	}()
-		// 	for {
-		// 		select {
-		// 		case <-w.ctx.Done():
-		// 			return
-		// 		default:
-		// 			time.Sleep(time.Second)
-		// 			for {
-		// 				n, err = w.gateOut.Read(b)
-		// 				if n > 0 {
-		// 					out += string(b)
-		// 				}
-		// 				if err == io.EOF {
-		// 					err = mxerror.CommonError(out)
-		// 					return
-		// 				} else if err != nil {
-		// 					log.Error("read error %s", err)
-		// 					return
-		// 				}
-		// 				if n < len(b) {
-		// 					break
-		// 				}
-		// 			}
 
-		// 			if strings.Contains(out, "http listening on") {
-		// 				w.stat.startAt = time.Now()
-		// 				return
-		// 			} else if strings.Contains(out, "exit status") {
-		// 				err = mxerror.CommonError(out)
-		// 				return
-		// 			}
-		// 		}
-		// 	}
-		// }()
+		if w.hCfg.MxgateURL != "" {
+			startWG.Done()
+			w.send()
+			return
+		}
+
+		// TODO according tag num ... to decide the stream_prepared
+		tableIdentifier := fmt.Sprintf("%s.%s", cfg.GlobalCfg.SchemaName, cfg.GlobalCfg.TableName)
+		streamPrepared := w.hCfg.StreamPrepared
+		interval := w.hCfg.Interval
+
+		// TODO according tag num ... to decide the stream_prepared, interval etc.
+		if streamPrepared < 0 {
+			streamPrepared = 2
+		}
+		if interval < 0 {
+			interval = 250
+		}
+		useGzip := "no"
+		if w.hCfg.UseGzip {
+			useGzip = "yes"
+		}
+		fs := Flags{
+			"--source":          "http",
+			"--format":          "csv",
+			"--time-format":     "raw",
+			"--http-port":       _HTTP_PORT,
+			"--max-body-bytes":  _BATCH_SIZE * 2, // Avoid batchSize bigger than --max-body-bytes
+			"--interval":        interval,
+			"--stream-prepared": streamPrepared,
+			"--use-gzip":        useGzip,
+
+			"--db-database":    cfg.DB.Database,
+			"--db-master-host": cfg.DB.MasterHost,
+			"--db-master-port": cfg.DB.MasterPort,
+			"--db-user":        cfg.DB.User,
+			"--delimiter":      util.DELIMITER,
+			"--target":         tableIdentifier,
+
+			"--timing":                  "true",
+			"--metrics-sample-interval": 15,
+
+			// To benchmark generate speed
+			// "--writer":    "nil",
+			// "--transform": "nil",
+		}
+
+		var cmd *exec.Cmd
+		cmd, w.gateOut, err = util.StartMxgate(w.hCfg.mxgatePath, fs.ToStr())
+		// fmt.Println("mxgate:", cmd.String())
+		if err != nil {
+			startWG.Done()
+			return
+		}
+
+		func() {
+			var out string
+			var n int
+			b := make([]byte, 1024)
+			defer func() {
+				startWG.Done()
+				go func() {
+					// consume gate stdout to prevent hang
+					_, _ = io.ReadAll(w.gateOut)
+				}()
+			}()
+			for {
+				select {
+				case <-w.ctx.Done():
+					return
+				default:
+					time.Sleep(time.Second)
+					for {
+						n, err = w.gateOut.Read(b)
+						if n > 0 {
+							out += string(b)
+						}
+						if err == io.EOF {
+							err = mxerror.CommonError(out)
+							return
+						} else if err != nil {
+							log.Error("read error %s", err)
+							return
+						}
+						if n < len(b) {
+							break
+						}
+					}
+
+					if strings.Contains(out, "http listening on") {
+						w.stat.startAt = time.Now()
+						return
+					} else if strings.Contains(out, "exit status") {
+						err = mxerror.CommonError(out)
+						return
+					}
+				}
+			}
+		}()
 
 		// Send data to mxgate until completed
 		w.send()
-		//_ = cmd.Process.Signal(syscall.SIGQUIT)
-		//_ = cmd.Wait()
+		_ = cmd.Process.Signal(syscall.SIGQUIT)
+		_ = cmd.Wait()
 	}()
 	startWG.Wait()
 	return w.finCh, err
@@ -241,8 +255,14 @@ func (w *Writer) send() {
 			var nPost int
 			var batchBuf = bytes.NewBuffer(make([]byte, 0, _BATCH_SIZE))
 
+			var addr string
+			if w.hCfg.MxgateURL != "" {
+				addr = strings.TrimPrefix(w.hCfg.MxgateURL, "http://")
+			} else {
+				addr = fmt.Sprintf("127.0.0.1:%d", _HTTP_PORT)
+			}
 			c := &fasthttp.HostClient{
-				Addr: fmt.Sprintf("127.0.0.1:%d", _HTTP_PORT),
+				Addr: addr,
 			}
 
 			defer func() {
