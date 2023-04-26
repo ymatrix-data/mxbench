@@ -22,13 +22,13 @@ import (
 )
 
 const (
-	_HEADER_CONTENT_ENCODING = "Content-Encoding"
-	_HEADER_GZIP             = "gzip"
-	_BATCH_SIZE              = 4 * 1024 * 1024
-	_BATCH_RED               = _BATCH_SIZE / 8 * 7
-	_METHOD_POST             = "POST"
-	_TEXT_PLAIN              = "text/plain"
-	_HTTP_PORT               = 8086
+	//_HEADER_CONTENT_ENCODING = "Content-Encoding"
+	//_HEADER_GZIP = "gzip"
+	_BATCH_SIZE  = 4 * 1024 * 1024
+	_BATCH_RED   = _BATCH_SIZE / 8 * 7
+	_METHOD_POST = "POST"
+	_TEXT_PLAIN  = "text/plain"
+	_HTTP_PORT   = 8086
 )
 
 var (
@@ -62,6 +62,7 @@ type Config struct {
 	ProgressFormat           string `mapstructure:"writer-progress-format"`
 	ProgressIncludeTableSize bool   `mapstructure:"writer-progress-include-table-size"`
 	ProgressWithTimezone     bool   `mapstructure:"writer-progress-with-timezone"`
+	MxgateURL                string `mapstructure:"writer-mxgate-url"`
 }
 
 func (c *Config) getProgressTimeLayout() string {
@@ -92,13 +93,19 @@ type Writer struct {
 func NewWriter(cfg engine.WriterConfig) engine.IWriter {
 	hCfg := cfg.PluginConfig.(*Config)
 	ctx, cancelFunc := context.WithCancel(context.Background())
+	var urlStr string
+	if hCfg.MxgateURL != "" {
+		urlStr = hCfg.MxgateURL
+	} else {
+		urlStr = fmt.Sprintf("http://127.0.0.1:%d", _HTTP_PORT)
+	}
 	return &Writer{
 		hCfg:       hCfg,
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
 		finCh:      make(chan error, hCfg.Parallel),
 		batchCh:    make(chan *sendAndFeed, 100),
-		url:        fmt.Sprintf("http://127.0.0.1:%d", _HTTP_PORT),
+		url:        urlStr,
 		stat:       &Stat{},
 	}
 }
@@ -118,8 +125,18 @@ func (w *Writer) Start(cfg engine.Config, volumeDesc engine.VolumeDesc) (<-chan 
 	w.globalWG.Add(1)
 
 	go func() {
-		// TODO
-		defer w.globalWG.Done()
+		defer func() {
+			w.globalWG.Done()
+			w.stat.stopAt = time.Now()
+			// Notify http writer finished
+			close(w.finCh)
+		}()
+
+		if w.hCfg.MxgateURL != "" {
+			startWG.Done()
+			w.send()
+			return
+		}
 
 		// TODO according tag num ... to decide the stream_prepared
 		tableIdentifier := fmt.Sprintf("%s.%s", cfg.GlobalCfg.SchemaName, cfg.GlobalCfg.TableName)
@@ -169,12 +186,6 @@ func (w *Writer) Start(cfg engine.Config, volumeDesc engine.VolumeDesc) (<-chan 
 			startWG.Done()
 			return
 		}
-
-		defer func() {
-			w.stat.stopAt = time.Now()
-			// Notify http writer finished
-			close(w.finCh)
-		}()
 
 		func() {
 			var out string
@@ -244,8 +255,14 @@ func (w *Writer) send() {
 			var nPost int
 			var batchBuf = bytes.NewBuffer(make([]byte, 0, _BATCH_SIZE))
 
+			var addr string
+			if w.hCfg.MxgateURL != "" {
+				addr = strings.TrimPrefix(w.hCfg.MxgateURL, "http://")
+			} else {
+				addr = fmt.Sprintf("127.0.0.1:%d", _HTTP_PORT)
+			}
 			c := &fasthttp.HostClient{
-				Addr: fmt.Sprintf("127.0.0.1:%d", _HTTP_PORT),
+				Addr: addr,
 			}
 
 			defer func() {
@@ -389,6 +406,7 @@ func (w *Writer) GetDefaultFlags() (*pflag.FlagSet, interface{}) {
 	p.IntVar(&hCfg.StreamPrepared, "writer-stream-prepared", -1, "stream-prepared for mxgate")
 	p.IntVar(&hCfg.Interval, "writer-interval", -1, "interval for mxgate")
 	p.StringVar(&hCfg.mxgatePath, "writer-mxgate-path", "", "path of mxgate")
+	p.StringVar(&hCfg.MxgateURL, "writer-mxgate-url", "", "http url of mxgate")
 
 	p.StringVar(&hCfg.ProgressFormat, "writer-progress-format", "list", "progress format. support \"list\", \"json\"")
 	p.BoolVar(&hCfg.ProgressIncludeTableSize, "writer-progress-include-table-size", false, "whether progress include table size")

@@ -623,6 +623,10 @@ func (e *Engine) execDDLFromFile() error {
 	defer conn.Close()
 
 	_, err = conn.Exec(ddlFromFile)
+	if strings.Contains(err.Error(), "already exists") {
+		log.Warn(err.Error())
+		return confirmMsg()
+	}
 	return err
 }
 
@@ -745,4 +749,15 @@ func (e *Engine) backupGUCs() error {
 
 func (e *Engine) IsNil() bool {
 	return e == nil
+}
+
+func confirmMsg() error {
+	// ask for confirmation
+	fmt.Printf(NoticeColor, "Continue running mxbench with the existing table: Yy|Nn (default=N): ")
+	var confirmStr string
+	fmt.Scanln(&confirmStr)
+	if strings.ToLower(strings.TrimSpace(confirmStr)) != "y" {
+		return mxerror.CommonErrorf("User abort running mxbench with existing table, exitting...")
+	}
+	return nil
 }
