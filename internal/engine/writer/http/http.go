@@ -22,13 +22,13 @@ import (
 )
 
 const (
-	_HEADER_CONTENT_ENCODING = "Content-Encoding"
-	_HEADER_GZIP             = "gzip"
-	_BATCH_SIZE              = 4 * 1024 * 1024
-	_BATCH_RED               = _BATCH_SIZE / 8 * 7
-	_METHOD_POST             = "POST"
-	_TEXT_PLAIN              = "text/plain"
-	_HTTP_PORT               = 8086
+	//_HEADER_CONTENT_ENCODING = "Content-Encoding"
+	//_HEADER_GZIP = "gzip"
+	_BATCH_SIZE  = 4 * 1024 * 1024
+	_BATCH_RED   = _BATCH_SIZE / 8 * 7
+	_METHOD_POST = "POST"
+	_TEXT_PLAIN  = "text/plain"
+	_HTTP_PORT   = 8086
 )
 
 var (
