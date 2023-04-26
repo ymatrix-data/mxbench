@@ -406,6 +406,7 @@ func (w *Writer) GetDefaultFlags() (*pflag.FlagSet, interface{}) {
 	p.IntVar(&hCfg.StreamPrepared, "writer-stream-prepared", -1, "stream-prepared for mxgate")
 	p.IntVar(&hCfg.Interval, "writer-interval", -1, "interval for mxgate")
 	p.StringVar(&hCfg.mxgatePath, "writer-mxgate-path", "", "path of mxgate")
+	p.StringVar(&hCfg.MxgateURL, "writer-mxgate-url", "", "http url of mxgate")
 
 	p.StringVar(&hCfg.ProgressFormat, "writer-progress-format", "list", "progress format. support \"list\", \"json\"")
 	p.BoolVar(&hCfg.ProgressIncludeTableSize, "writer-progress-include-table-size", false, "whether progress include table size")
