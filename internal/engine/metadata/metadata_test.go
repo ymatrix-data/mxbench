@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -2168,5 +2169,44 @@ USING mars2_btree(
 )
 WITH(uniquemode=false);
 `))
+	})
+})
+var _ = Describe("Metadata test", func() {
+	Describe("GetRandomVinsGenerator", func() {
+		var (
+			meta      *Metadata
+			generator func() string
+		)
+
+		It("returns a comma-separated list of 3 VINs", func() {
+			// Create a new Metadata object with some test data
+			meta = &Metadata{
+				Table: &Table{
+					VinValues: []string{"VIN1", "VIN2", "VIN3", "VIN4", "VIN5"},
+				},
+			}
+
+			// Call the GetRandomVinsGenerator function with num=3
+			generator = meta.GetRandomVinsGenerator(3)
+
+			result := generator()
+
+			Expect(strings.Count(result, ",")).To(Equal(2))
+		})
+
+		It("returns an empty string when VinValues is empty", func() {
+			// Create a new Metadata object with some test data
+			meta = &Metadata{
+				Table: &Table{
+					VinValues: []string{""},
+				},
+			}
+
+			generator = meta.GetRandomVinsGenerator(1)
+
+			result := generator()
+
+			Expect(result).To(Equal("''"))
+		})
 	})
 })

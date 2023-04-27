@@ -239,6 +239,9 @@ func (meta *Metadata) GetSingleVinGenerator() SingleVinGenerator {
 
 func (meta *Metadata) GetRandomVinsGenerator(num int) func() string {
 	return func() string {
+		if len(meta.Table.VinValues) == 0 {
+			return "''"
+		}
 		quotedSelectedTags := make([]string, 0, num)
 		for i := 0; i < num; i++ {
 			vinIdx := rand.Int63n(int64(len(meta.Table.VinValues)))

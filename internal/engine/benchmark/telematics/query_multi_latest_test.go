@@ -69,6 +69,62 @@ INNER JOIN (
     ) AS t2
 ON t1.vin = t2.vin AND t1.ts=t2.max_ts`))
 	})
+	It("should generate SQL without dealing with json column and singleVinGenerator is empty", func() {
+		startAt, _ := time.Parse(util.TIME_FMT, "2016-01-01 00:00:00")
+		endAt, _ := time.Parse(util.TIME_FMT, "2016-01-02 00:00:00")
+		b := Benchmark{}
+		b.gcfg.GlobalCfg = engine.GlobalConfig{
+			SchemaName:            "public",
+			TableName:             "xx",
+			TotalMetricsCount:     20,
+			TimestampStepInSecond: 1,
+			MetricsType:           metadata.MetricsTypeFloat4,
+			StartAt:               startAt,
+			EndAt:                 endAt,
+			TagNum:                25000,
+		}
+
+		b.meta, _ = metadata.New(b.gcfg.GlobalCfg.NewMetadataConfig())
+		q := newQueryMultiLatest(b.meta, nil)
+		query, ok := q.(*queryMultiLatest)
+		Expect(ok).To(BeTrue())
+		query.multiVinsGenerator = func() string {
+			return "''"
+		}
+		Expect(query.GetSQL()).To(Equal(`SELECT
+    t1.ts
+  , t1.vin
+  , t1.c0
+  , t1.c1
+  , t1.c2
+  , t1.c3
+  , t1.c4
+  , t1.c5
+  , t1.c6
+  , t1.c7
+  , t1.c8
+  , t1.c9
+  , t1.c10
+  , t1.c11
+  , t1.c12
+  , t1.c13
+  , t1.c14
+  , t1.c15
+  , t1.c16
+  , t1.c17
+  , t1.c18
+  , t1.c19
+FROM "public"."xx" AS t1
+INNER JOIN (
+	SELECT
+	    vin,
+	    MAX(ts) AS max_ts
+	FROM "public"."xx"
+	WHERE vin IN ( '' )
+	GROUP BY vin
+    ) AS t2
+ON t1.vin = t2.vin AND t1.ts=t2.max_ts`))
+	})
 	It("should generate SQL with dealing with json column", func() {
 		startAt, _ := time.Parse(util.TIME_FMT, "2016-01-01 00:00:00")
 		endAt, _ := time.Parse(util.TIME_FMT, "2016-01-02 00:00:00")
