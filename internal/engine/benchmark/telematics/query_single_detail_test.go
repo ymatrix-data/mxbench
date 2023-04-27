@@ -63,6 +63,56 @@ WHERE vin = 'test'
 AND ts >= '2016-01-01 00:10:00'
 AND ts < '2016-01-01 00:11:00'`))
 	})
+	It("should generate SQL without dealing with json column and singleVinGenerator is empty", func() {
+		startAt, _ := time.Parse(util.TIME_FMT, "2016-01-01 00:00:00")
+		endAt, _ := time.Parse(util.TIME_FMT, "2016-01-02 00:00:00")
+		b := Benchmark{}
+		b.gcfg.GlobalCfg = engine.GlobalConfig{
+			SchemaName:            "public",
+			TableName:             "xx",
+			TotalMetricsCount:     20,
+			TimestampStepInSecond: 1,
+			MetricsType:           metadata.MetricsTypeFloat4,
+			StartAt:               startAt,
+			EndAt:                 endAt,
+			TagNum:                25000,
+		}
+		b.meta, _ = metadata.New(b.gcfg.GlobalCfg.NewMetadataConfig())
+		q := newQuerySingleDetail(b.meta, nil)
+		query, ok := q.(*querySingleDetail)
+		Expect(ok).To(BeTrue())
+		query.singleVinGenerator = func() string {
+			return "''"
+		}
+		query.durationGenerator = func() (string, string) {
+			return "'2016-01-01 00:10:00'", "'2016-01-01 00:11:00'"
+		}
+		Expect(query.GetSQL()).To(Equal(`SELECT ARRAY[
+c0
+  , c1
+  , c2
+  , c3
+  , c4
+  , c5
+  , c6
+  , c7
+  , c8
+  , c9
+  , c10
+  , c11
+  , c12
+  , c13
+  , c14
+  , c15
+  , c16
+  , c17
+  , c18
+  , c19 ]
+FROM "public"."xx"
+WHERE vin = ''
+AND ts >= '2016-01-01 00:10:00'
+AND ts < '2016-01-01 00:11:00'`))
+	})
 	It("should generate SQL with dealing with json column", func() {
 		startAt, _ := time.Parse(util.TIME_FMT, "2016-01-01 00:00:00")
 		endAt, _ := time.Parse(util.TIME_FMT, "2016-01-02 00:00:00")
@@ -1096,4 +1146,5 @@ WHERE vin = 'test'
 AND ts >= '2016-01-01 00:10:00'
 AND ts < '2016-01-01 00:11:00'`))
 	})
+
 })
