@@ -623,7 +623,8 @@ func (e *Engine) execDDLFromFile() error {
 	defer conn.Close()
 
 	_, err = conn.Exec(ddlFromFile)
-	if strings.Contains(err.Error(), "already exists") {
+
+	if err != nil && strings.Contains(err.Error(), "already exists") {
 		log.Warn(err.Error())
 		return confirmMsg()
 	}
