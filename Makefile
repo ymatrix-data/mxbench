@@ -31,8 +31,7 @@ linux_arm64:
 	env GOOS=linux GOARCH=arm go build -o ./bin/mxbench -ldflags "$(LDFLAGS)" ./cmd/mxbench/main.go
 
 release:
-	CGO_ENABLED=0 go build -o ./bin/mxbench -a -ldflags "-s -w $(LDFLAGS)" ./cmd/mxbench/main.go
-	upx bin/mxbench
+	CGO_ENABLED=0 go build -o ./bin/mxbench -a -ldflags "$(LDFLAGS)" ./cmd/mxbench/main.go
 
 clean:
 	rm -rf ./bin/*
