@@ -1,0 +1,86 @@
+name: MXBENCH
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  pipeline_id: 17
+
+jobs:
+
+  start_pipeline:
+    runs-on: ubuntu-20.04
+    container:
+      image: docker.pkg.github.com/ymatrix-data/matrixdb-ci/psqlci:latest
+      credentials:
+        username: ${{ secrets.CI_USER }}
+        password: ${{ secrets.PAT }}
+    steps:
+      - run: |
+          psql -c "DELETE FROM pipeline_status WHERE pipeline_id = ${{env.pipeline_id}} AND run_number = ${{github.run_number}} AND run_id = ${{github.run_id}}"
+          psql -c "INSERT INTO pipeline_status(pipeline_id, run_number, run_id, event_dt, status) VALUES(${{env.pipeline_id}}, ${{github.run_number}}, ${{github.run_id}}, now(), 'start')"
+
+  build_and_test:
+    needs: [ start_pipeline ]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Granting private modules access
+        run: |
+          git config --global url."https://${{secrets.CI_USER}}:${{secrets.PAT}}@github.com/ymatrix-data".insteadOf "https://github.com/ymatrix-data"
+      - uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+      - name: golangci-lint
+        # https://github.com/golangci/golangci-lint-action
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: latest
+      - name: Test
+        run: make test
+      - name: E2E
+        run: make e2e
+      - name: Build
+        run: make
+
+  report_on_success:
+    if: ${{ success() }}
+    needs: [ build_and_test ]
+    runs-on: ubuntu-20.04
+    container:
+      image: docker.pkg.github.com/ymatrix-data/matrixdb-ci/psqlci:latest
+      credentials:
+        username: ${{ secrets.CI_USER }}
+        password: ${{ secrets.PAT }}
+    steps:
+      - run: |
+          psql -c "INSERT INTO pipeline_status(pipeline_id, run_number, run_id, event_dt, status) VALUES(${{env.pipeline_id}}, ${{github.run_number}}, ${{github.run_id}}, now(), 'done')"
+
+  report_on_cancel:
+    if: ${{ cancelled() }}
+    needs: [ build_and_test ]
+    runs-on: ubuntu-20.04
+    container:
+      image: docker.pkg.github.com/ymatrix-data/matrixdb-ci/psqlci:latest
+      credentials:
+        username: ${{ secrets.CI_USER }}
+        password: ${{ secrets.PAT }}
+    steps:
+      - run: |
+          psql -c "INSERT INTO pipeline_status(pipeline_id, run_number, run_id, event_dt, status) VALUES(${{env.pipeline_id}}, ${{github.run_number}}, ${{github.run_id}}, now(), 'cancel')"
+
+  report_on_failure:
+    if: ${{ failure() }}
+    needs: [ build_and_test ]
+    runs-on: ubuntu-20.04
+    container:
+      image: docker.pkg.github.com/ymatrix-data/matrixdb-ci/psqlci:latest
+      credentials:
+        username: ${{ secrets.CI_USER }}
+        password: ${{ secrets.PAT }}
+    steps:
+      - run: |
+          psql -c "INSERT INTO pipeline_status(pipeline_id, run_number, run_id, event_dt, status) VALUES(${{env.pipeline_id}}, ${{github.run_number}}, ${{github.run_id}}, now(), 'error')"
