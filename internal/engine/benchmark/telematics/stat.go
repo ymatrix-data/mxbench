@@ -11,6 +11,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 
 	"github.com/ymatrix-data/mxbench/internal/engine"
+	"github.com/ymatrix-data/mxbench/internal/util"
 	"github.com/ymatrix-data/mxbench/internal/util/log"
 )
 
@@ -182,7 +183,7 @@ func (s *Stat) GetFormattedSummary() string {
 		log.Error("Failed to tranfer object to json string: [%v]", err)
 		return ""
 	}
-	rows := strconv.Itoa(concurrency) + "|" + string(resStr) + "\n"
+	rows := strconv.Itoa(concurrency) + util.DELIMITER + string(resStr) + "\n"
 	return rows
 
 }
