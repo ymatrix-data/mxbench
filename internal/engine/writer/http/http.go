@@ -133,6 +133,7 @@ func (w *Writer) Start(cfg engine.Config, volumeDesc engine.VolumeDesc) (<-chan 
 		}()
 
 		if w.hCfg.MxgateURL != "" {
+			w.stat.startAt = time.Now()
 			startWG.Done()
 			w.send()
 			return
