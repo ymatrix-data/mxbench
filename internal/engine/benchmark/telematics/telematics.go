@@ -3,7 +3,6 @@ package telematics
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -163,19 +162,10 @@ func (b *Benchmark) exec(queries []engine.Query) error {
 				log.Info("Begin to exec query %d of %d: %s", i+1, queriesNum, q.GetName())
 
 				var err error
-				var wg sync.WaitGroup
+				execStat := engine.NewExecBenchStat(opt, q)
+				b.stat.AddSubStat(execStat)
+				err = b.execFunc(b.ctx, q, execStat)
 
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					execStat := engine.NewExecBenchStat(opt, q)
-					b.stat.AddSubStat(execStat)
-					err = b.execFunc(b.ctx, q, execStat)
-					if err != nil {
-						return
-					}
-				}()
-				wg.Wait()
 				log.Info("Query %d of %d: %s done", i+1, queriesNum, q.GetName())
 				fmt.Printf("Sub Stat for query %d of %d: %s done\n%s\n", i+1, queriesNum, q.GetName(),
 					b.stat.subStats[len(b.stat.subStats)-1].GetSummary())
