@@ -49,6 +49,7 @@ type GlobalConfig struct {
 	Workspace                string               `mapstructure:"workspace"`
 	DDLFilePath              string               `mapstructure:"ddl-file-path"`
 	SimultaneousLoadAndQuery bool                 `mapstructure:"simultaneous-loading-and-query"`
+	PreBenchmarkQuery        string               `mapstructure:"pre-benchmark-query"`
 	SkipSetGUCs              bool                 `mapstructure:"skip-set-gucs"`
 
 	// misc
@@ -169,6 +170,7 @@ func (cfg *Config) GlobalFlagSet() *pflag.FlagSet {
 	set.StringVar(&cfg.GlobalCfg.DDLFilePath, "ddl-file-path", "", "the file path of ddl")
 	set.StringVarP(&cfg.GlobalCfg.CfgFile, "config", "C", "", "configuration file to load")
 	set.BoolVar(&cfg.GlobalCfg.SkipSetGUCs, "skip-set-gucs", false, "whether to skip set GUCs")
+	set.StringVar(&cfg.GlobalCfg.PreBenchmarkQuery, "pre-benchmark-query", "", "some specific sql such as analyze and vaccum database before run benchmark queries")
 
 	// misc
 	set.StringVar(&cfg.GlobalCfg.LogLevel, "log-level", "info", "log level. support \"debug\", \"verbose\", \"info\", \"error\"")

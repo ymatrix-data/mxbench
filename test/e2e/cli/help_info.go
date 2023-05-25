@@ -39,6 +39,7 @@ The arguments are:
       --ddl-file-path string             the file path of ddl
   -C, --config string                    configuration file to load
       --skip-set-gucs                    whether to skip set GUCs
+      --pre-benchmark-query string       some specific sql such as analyze and vaccum database before run benchmark queries
       --log-level string                 log level. support "debug", "verbose", "info", "error" (default "info")
   -h, --help                             print usage
       --version                          print version
