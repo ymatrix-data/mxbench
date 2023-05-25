@@ -190,6 +190,12 @@ $ cd <YMatrix安装目录>
   # （默认）如果选择false: 先执行数据加载，执行完毕后再执行查询。
   simultaneous-loading-and-query = false
 
+  # 如果 simultaneous-loading-and-query 设为false，
+  # 那么 pre-benchmark-query 此参数才会生效。
+  # （默认）为空，如果设置，则在执行查询前会优先执行此query。
+  # 例： "vaccum analyze;"
+  pre-benchmark-query = ""
+
   # 如果需要定制DDL，该参数填写DDL文件的路径。
   # （默认）不填写则会根据其他相关配置生成DDL。
   ddl-file-path = ""

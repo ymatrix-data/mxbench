@@ -407,6 +407,12 @@ func (e *Engine) Run() error {
 			if err != nil {
 				return
 			}
+			if err = e.handlePreSql(); err != nil {
+				log.Error("Faild to run pre-benchmark query:[%v]", err)
+				return
+			}
+			log.Info("Finished run pre-benchmark query")
+
 		}
 		log.Info("Begin to run benchmark queries")
 		if err := e.IBenchmark.Run(writerFinCh, *e.Config, e.Metadata, e.execBenchFunc); err != nil {
@@ -464,6 +470,16 @@ func (e *Engine) handleGUCs() error {
 	}
 	log.Info("GUCs setting executed successfully")
 
+	return nil
+}
+
+func (e *Engine) handlePreSql() error {
+	query := e.Config.GlobalCfg.PreBenchmarkQuery
+	if query != "" {
+		log.Info("Begin to run pre-benchmark query")
+		log.Info("Query is : [%v]", query)
+		return e.execQuery(query)
+	}
 	return nil
 }
 
@@ -628,6 +644,18 @@ func (e *Engine) execDDLFromFile() error {
 		log.Warn(err.Error())
 		return confirmMsg()
 	}
+	return err
+}
+
+func (e *Engine) execQuery(query string) error {
+	conn, err := util.CreateDBConnection(e.Config.DB)
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close()
+
+	_, err = conn.Exec(query)
 	return err
 }
 
