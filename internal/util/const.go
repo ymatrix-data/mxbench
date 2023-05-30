@@ -13,4 +13,5 @@ const (
 	TIME_FMT         = "2006-01-02 15:04:05"
 	TIME_WITH_TZ_FMT = "2006-01-02 15:04:05 -0700"
 	DELIMITER        = "|"
+	ENV_KEY_MXHOME   = "GPHOME"
 )
