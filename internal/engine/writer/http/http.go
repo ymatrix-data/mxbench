@@ -339,8 +339,6 @@ func (w *Writer) send() {
 						accPost += dur
 						if err != nil {
 							fmt.Printf("err occurs %v\n", err)
-							w.finCh <- err
-							return
 						}
 						batchBuf.Reset()
 					}
