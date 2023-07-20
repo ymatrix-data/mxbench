@@ -22,6 +22,7 @@ const (
 
 	ColumnTypeJSON  ColumnType = "json"
 	ColumnTypeJSONB ColumnType = "jsonb"
+	ColumnTypeMXKV2_FLOAT8 ColumnType = "mxkv2_float8"
 )
 
 var supportedTSTypes = map[ColumnType]struct{}{
@@ -39,6 +40,7 @@ var supportedVINTypes = map[ColumnType]struct{}{
 var supportedExtTypes = map[ColumnType]struct{}{
 	ColumnTypeJSON:  {},
 	ColumnTypeJSONB: {},
+	ColumnTypeMXKV2_FLOAT8: {},
 }
 
 type ColumnName = string

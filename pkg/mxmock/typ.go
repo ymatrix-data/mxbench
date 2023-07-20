@@ -147,6 +147,8 @@ var TypMap = map[string]NewFunc{
 	"_json":          NewJSONs,
 	"jsonb":          NewJSON,
 	"_jsonb":         NewJSONs,
+	"mxkv2_float8":	  NewJSON,
+	"_mxkv2_float8":  NewJSONs,
 	"xml":            NewXML,
 	"_xml":           NewXMLs,
 	"macaddr":        NewMacAddr,

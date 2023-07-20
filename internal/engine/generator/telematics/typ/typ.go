@@ -19,4 +19,5 @@ func Init(table *metadata.Table) {
 	mxmock.TypMap["varchar"] = GetNewVarChar(table)
 	mxmock.TypMap["json"] = GetNewJSON(table)
 	mxmock.TypMap["jsonb"] = mxmock.TypMap["json"]
+	mxmock.TypMap["mxkv2_float8"] = mxmock.TypMap["json"]
 }
