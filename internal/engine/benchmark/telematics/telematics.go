@@ -186,7 +186,10 @@ func (b *Benchmark) newNamedQueries() []engine.Query {
 			log.Warn("query name: %s is not included in %s benchmark, skipping...", queryName, b.bcfg.Plugin)
 			continue
 		}
-		queries = append(queries, newFunc(b.meta, b.cfg))
+		query := newFunc(b.meta, b.cfg)
+		fmt.Println(queryName, ":", query)
+		//queries = append(queries, newFunc(b.meta, b.cfg))
+		queries = append(queries, query)
 	}
 
 	return queries

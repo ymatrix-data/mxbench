@@ -25,6 +25,12 @@ FROM %[2]s AS %[3]s
 WHERE %[7]s = %%s
 AND %[8]s >= %%s
 AND %[8]s < %%s`
+	_SINGLE_TAG_DETAIL_QUERY_WITH_JSON_METRICS_MXKV2 = `SELECT
+ARRAY[%[1]s]
+FROM %[2]s AS %[3]s
+WHERE %[7]s = %%s
+AND %[8]s >= %%s
+AND %[8]s < %%s`
 )
 
 type querySingleDetail struct {
@@ -58,9 +64,9 @@ func newQuerySingleDetail(meta *metadata.Metadata, cfg *Config) engine.Query {
 		}
 	}
 	return &querySingleDetail{
-		format: fmt.Sprintf(_SINGLE_TAG_DETAIL_QUERY_WITH_JSON_METRICS,
+		format: fmt.Sprintf(_SINGLE_TAG_DETAIL_QUERY_WITH_JSON_METRICS_MXKV2,
 			meta.Table.Columns[metadata.NON_METRICS_COLUMN_NUM:simpleMetricsCount+metadata.NON_METRICS_COLUMN_NUM].ToSelectSQLStr(_RELATION_ALIAS_R1)+
-				"\n  , "+meta.ToJSONSelectStr(meta.Table.ColumnsDescsExt, _RELATION_ALIAS_R2, jsonMetricsCount),
+				"\n  , "+meta.ToJSONArrowColStr(meta.Table.ColumnsDescsExt, _RELATION_ALIAS_R1, jsonMetricsCount),
 			tableIdentifier,
 			_RELATION_ALIAS_R1,
 			meta.Table.ColumnNameExt,

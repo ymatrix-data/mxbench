@@ -34,6 +34,16 @@ INNER JOIN (
 	GROUP BY %[7]s) AS %[8]s
 ON %[3]s.%[7]s = %[8]s.%[7]s AND %[3]s.%[5]s=%[8]s.max_ts
 , %[12]s_to_record(%[3]s.%[9]s) AS %[10]s( %[11]s )`
+	_MULTI_TAG_LATEST_QUERY_WITH_JSON_METRICS_MXKV2 = `SELECT
+    %[1]s
+FROM %[2]s AS %[3]s
+INNER JOIN (
+	SELECT %[4]s,
+	MAX(%[5]s) AS max_ts
+	FROM %[6]s
+	WHERE %[7]s IN ( %%s )
+	GROUP BY %[7]s) AS %[8]s
+ON %[3]s.%[7]s = %[8]s.%[7]s AND %[3]s.%[5]s=%[8]s.max_ts`
 )
 
 type queryMultiLatest struct {
@@ -68,9 +78,9 @@ func newQueryMultiLatest(meta *metadata.Metadata, cfg *Config) engine.Query {
 		}
 	}
 	return &queryMultiLatest{
-		format: fmt.Sprintf(_MULTI_TAG_LATEST_QUERY_WITH_JSON_METRICS,
+		format: fmt.Sprintf(_MULTI_TAG_LATEST_QUERY_WITH_JSON_METRICS_MXKV2,
 			meta.Table.Columns[metadata.NON_METRICS_COLUMN_NUM:simpleMetricsCount+metadata.NON_METRICS_COLUMN_NUM].ToSelectSQLStr(_RELATION_ALIAS_R1)+
-				"\n  , "+meta.ToJSONSelectStr(meta.Table.ColumnsDescsExt, _RELATION_ALIAS_R2, jsonMetricsCount),
+				"\n  , "+meta.ToJSONArrowColStr(meta.Table.ColumnsDescsExt, _RELATION_ALIAS_R1, jsonMetricsCount),
 			tableIdentifier,
 			_RELATION_ALIAS_R1,
 			meta.Table.Columns[1:2].ToSelectSQLStr(""),

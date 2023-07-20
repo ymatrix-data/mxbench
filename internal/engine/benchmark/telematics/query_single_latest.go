@@ -21,6 +21,11 @@ FROM %[2]s AS %[3]s
 , %[9]s_to_record(%[3]s.%[4]s) AS %[5]s ( %[6]s )
 WHERE %[7]s = %%s
 ORDER BY %[8]s DESC LIMIT 1`
+	_SINGLE_TAG_LATEST_QUERY_WITH_JSON_METRICS_MXKV2 = `SELECT
+    %[1]s
+FROM %[2]s AS %[3]s
+WHERE %[7]s = %%s
+ORDER BY %[8]s DESC LIMIT 1`
 )
 
 type querySingleLatest struct {
@@ -52,9 +57,9 @@ func newQuerySingleLatest(meta *metadata.Metadata, cfg *Config) engine.Query {
 		}
 	}
 	return &querySingleLatest{
-		format: fmt.Sprintf(_SINGLE_TAG_LATEST_QUERY_WITH_JSON_METRICS,
+		format: fmt.Sprintf(_SINGLE_TAG_LATEST_QUERY_WITH_JSON_METRICS_MXKV2,
 			meta.Table.Columns[metadata.NON_METRICS_COLUMN_NUM:simpleMetricsCount+metadata.NON_METRICS_COLUMN_NUM].ToSelectSQLStr(_RELATION_ALIAS_R1)+
-				"\n  , "+meta.ToJSONSelectStr(meta.Table.ColumnsDescsExt, _RELATION_ALIAS_R2, jsonMetricsCount),
+				"\n  , "+meta.ToJSONArrowColStr(meta.Table.ColumnsDescsExt, _RELATION_ALIAS_R1, jsonMetricsCount),
 			tableIdentifier,
 			_RELATION_ALIAS_R1,
 			meta.Table.ColumnNameExt,

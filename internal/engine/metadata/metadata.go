@@ -338,3 +338,38 @@ func (meta *Metadata) ToJSONColStr(jsonColumnsDescs MetricsDescriptions, jsonMet
 	}
 	return strings.Join(jsonColStrSlice, "\n  , ")
 }
+
+func (meta *Metadata) ToJSONArrowColStr(jsonColumnsDescs MetricsDescriptions, tableAlias string, jsonMetricsNum int64) string {
+	if jsonMetricsNum > meta.Table.JSONMetricsCount {
+		jsonMetricsNum = meta.Table.JSONMetricsCount
+	}
+	jsonColStrSlice := make([]string, 0, jsonMetricsNum)
+	if jsonColumnsDescs == nil {
+		for i := int64(0); i < jsonMetricsNum; i++ {
+			jsonColStrSlice = append(jsonColStrSlice, fmt.Sprintf("%s.%s->'%s'", tableAlias, "ext", fmt.Sprintf("k%d", i)))
+		}
+		fmt.Println("2-1")
+		return strings.Join(jsonColStrSlice, "\n  , ")
+	}
+	fmt.Println("2-2")
+	var count int64
+	for cdI, columnsDesc := range jsonColumnsDescs {
+		if count >= jsonMetricsNum {
+			break
+		}
+		if count+columnsDesc.Count <= jsonMetricsNum {
+			for cdc := int64(0); cdc < columnsDesc.Count; cdc++ {
+				jsonColStrSlice = append(jsonColStrSlice, fmt.Sprintf("%s %s", pq.QuoteIdentifier(
+					fmt.Sprintf("k%d_%s_%d", cdI, columnsDesc.MetricsType, cdc)), columnsDesc.MetricsType))
+				count++
+			}
+			continue
+		}
+		for cdc := int64(0); cdc < jsonMetricsNum-count; cdc++ {
+			jsonColStrSlice = append(jsonColStrSlice, fmt.Sprintf("%s %s", pq.QuoteIdentifier(
+				fmt.Sprintf("k%d_%s_%d", cdI, columnsDesc.MetricsType, cdc)), columnsDesc.MetricsType))
+			count++
+		}
+	}
+	return strings.Join(jsonColStrSlice, "\n  , ")
+}
