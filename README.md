@@ -4,10 +4,10 @@ mxbench 是 YMatrix 数据加载和查询的压测工具，可以根据用户给
 ## 0.准备
 
 ### 1.1 YMatrix集群
-需要一个正常运行的YMatrix集群。
+需要一个正常运行的 YMatrix 集群。
 
 ### 1.2 环境变量
-由于mxbench需要调用createdb, gpconfig, gpstop/mxstop，因此需要用户配置好相关环境变量使这些命令可以正确执行。
+由于 mxbench 需要调用createdb, gpconfig, gpstop/mxstop，因此需要用户配置好相关环境变量使这些命令可以正确执行。
 
 具体的，需要执行source `<YMatrix安装目录>/greenplum_path.sh`， 还需要正确设置以下环境变量：
 - PGHOST
