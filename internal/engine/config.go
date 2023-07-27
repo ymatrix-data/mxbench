@@ -51,6 +51,7 @@ type GlobalConfig struct {
 	SimultaneousLoadAndQuery bool                 `mapstructure:"simultaneous-loading-and-query"`
 	PreBenchmarkQuery        string               `mapstructure:"pre-benchmark-query"`
 	SkipSetGUCs              bool                 `mapstructure:"skip-set-gucs"`
+	StorageType              string               `mapstructure:"storage-type"`
 
 	// misc
 	Command       string
@@ -69,8 +70,6 @@ type GlobalConfig struct {
 }
 
 func (cfg *GlobalConfig) NewMetadataConfig() *metadata.Config {
-	// TODO
-	storageType := metadata.StorageMars2
 	return &metadata.Config{
 		SchemaName:              cfg.SchemaName,
 		TableName:               cfg.TableName,
@@ -82,7 +81,7 @@ func (cfg *GlobalConfig) NewMetadataConfig() *metadata.Config {
 		TotalMetricsCount:       cfg.TotalMetricsCount,
 		MetricsDescriptions:     cfg.MetricsDescriptions,
 		TimestampStepInSecond:   cfg.TimestampStepInSecond,
-		StorageType:             storageType,
+		StorageType:             cfg.StorageType,
 		IsDDLFromFile:           cfg.DDLFilePath != "",
 	}
 }
@@ -161,6 +160,8 @@ func (cfg *Config) GlobalFlagSet() *pflag.FlagSet {
 		metadata.MAX_SIMPLE_COLUMN_NUM-metadata.NON_METRICS_COLUMN_NUM+2,
 		metadata.ColumnNameExt,
 	))
+	set.StringVar(&cfg.GlobalCfg.StorageType, "storage-type", "mars3", "supported storage types are mars2, mars3")
+
 	// TODO complete the hint info
 	set.StringVar(&cfg.GlobalCfg.MetricsDescriptions, "metrics-descriptions", "", "metrics-descriptions")
 	set.BoolVar(&cfg.GlobalCfg.Dump, "dump", false, "whether to dump or not")
