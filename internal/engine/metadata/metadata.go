@@ -23,17 +23,24 @@ const (
 )
 
 const (
+	_ORDERBY_SQL = `
+ORDER BY (%s)
+	`
+
 	_CREATE_EXTENSION_SQL = `
 CREATE EXTENSION IF NOT EXISTS matrixts;
 ALTER EXTENSION matrixts UPDATE;`
+
 	_CREATE_SCHEMA_SQL = `
 CREATE SCHEMA IF NOT EXISTS %s;`
+
 	_CREATE_TABLE_SQL_FMT = `
 CREATE TABLE %s (
 %s
 )
 USING %s
 DISTRIBUTED BY (%s)
+%s
 PARTITION BY RANGE(ts) (
 	START ('%s')
 	END ('%s')
@@ -41,12 +48,14 @@ PARTITION BY RANGE(ts) (
 	DEFAULT PARTITION default_prt
 );
 `
+
 	_CREATE_TABLE_WITH_OPTIONS_SQL_FMT = `
 CREATE TABLE %s (
 %s
 )
 USING %s WITH ( %s )
 DISTRIBUTED BY (%s)
+%s
 PARTITION BY RANGE(ts) (
 	START ('%s')
 	END ('%s')
@@ -54,6 +63,7 @@ PARTITION BY RANGE(ts) (
 	DEFAULT PARTITION default_prt
 );
 `
+
 	_SELECT_TABLE_SIZE_SQL = `
 WITH RECURSIVE pg_inherit(inhrelid, inhparent) AS (
   SELECT
@@ -142,7 +152,10 @@ func New(cfg *Config) (*Metadata, error) {
 
 	// TODO: support multi-storage-type
 	var err error
-	metadata.Table, err = NewMars2Table(cfg)
+	metadata.Table, err = NewMarsTable(cfg, cfg.StorageType)
+	if err != nil {
+		return nil, err
+	}
 
 	return metadata, err
 }
@@ -193,6 +206,8 @@ func (meta *Metadata) createTableSQL() string {
 
 	tableIdentifier := meta.Table.Identifier()
 
+	orderByClause := genOrderByClause(meta.Table.OrderByKey)
+
 	if len(meta.Table.Options) > 0 {
 		return fmt.Sprintf(
 			_CREATE_TABLE_WITH_OPTIONS_SQL_FMT,
@@ -201,6 +216,7 @@ func (meta *Metadata) createTableSQL() string {
 			meta.Table.Storage,
 			meta.Table.Options.ToSQLStr(),
 			meta.Table.DistKey,
+			orderByClause,
 			meta.Cfg.StartAt.Add(-OutOrderDuration).Format(util.TIME_FMT),
 			meta.Cfg.EndAt.Format(util.TIME_FMT),
 			partitionIntevalInSecond,
@@ -213,10 +229,18 @@ func (meta *Metadata) createTableSQL() string {
 		meta.Table.Columns.ToSQLStr(),
 		meta.Table.Storage,
 		meta.Table.DistKey,
+		orderByClause,
 		meta.Cfg.StartAt.Format(util.TIME_FMT),
 		meta.Cfg.EndAt.Format(util.TIME_FMT),
 		partitionIntevalInSecond,
 	)
+}
+
+func genOrderByClause(orderkeys []string) string {
+	if len(orderkeys) == 0 {
+		return ""
+	}
+	return fmt.Sprintf(_ORDERBY_SQL, strings.Join(orderkeys, ","))
 }
 
 func (meta *Metadata) createIndexSQL() string {
