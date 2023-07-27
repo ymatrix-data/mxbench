@@ -218,7 +218,7 @@ func NewTable(cfg *Config, st StorageType) (*Table, error) {
 	}
 
 	tb := &Table{
-		Storage: StorageMars3,
+		Storage: st,
 		// Inherit basic information from config
 		schemaName:        cfg.SchemaName,
 		name:              cfg.TableName,
