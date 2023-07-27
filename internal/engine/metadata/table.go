@@ -193,7 +193,7 @@ func NewTable(cfg *Config, st StorageType) (*Table, error) {
 
 	switch st {
 	case StorageMars2:
-		orderKey = []string{""}
+		orderKey = nil
 		ops = Options{
 			{
 				Name:  "compress_threshold",

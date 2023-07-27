@@ -36,7 +36,7 @@ var _ = Describe("Mars2 Table", func() {
 		Expect(t.Columns[1].TypeName).To(Equal(ColumnTypeText))
 		Expect(t.Storage).To(Equal(StorageMars2))
 		Expect(t.DistKey).To(Equal(ColumnNameVIN))
-		Expect(t.OrderByKey).To(Equal([]string{""}))
+		Expect(t.OrderByKey).To(Equal(nil))
 		Expect(t.Indexes).To(HaveLen(1))
 	})
 	It("should create table without json column", func() {
@@ -64,7 +64,7 @@ var _ = Describe("Mars2 Table", func() {
 
 		Expect(t.Storage).To(Equal(StorageMars2))
 		Expect(t.DistKey).To(Equal(ColumnNameVIN))
-		Expect(t.OrderByKey).To(Equal([]string{""}))
+		Expect(t.OrderByKey).To(Equal(nil))
 		Expect(t.Indexes).To(HaveLen(1))
 	})
 	It("should create table with json column", func() {
@@ -95,7 +95,7 @@ var _ = Describe("Mars2 Table", func() {
 
 		Expect(t.Storage).To(Equal(StorageMars2))
 		Expect(t.DistKey).To(Equal(ColumnNameVIN))
-		Expect(t.OrderByKey).To(Equal([]string{""}))
+		Expect(t.OrderByKey).To(Equal(nil))
 		Expect(t.Indexes).To(HaveLen(1))
 	})
 	It("should ...", func() {
