@@ -156,6 +156,9 @@ const DefaultConfigTemplate = `[benchmark]
   ## whether to skip set GUCs
   # skip-set-gucs = false
 
+  ## storage type
+  # storage-type = "mars3"
+
   ## the name of the table
   # table-name = ""
 

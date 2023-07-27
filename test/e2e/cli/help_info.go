@@ -37,6 +37,7 @@ The arguments are:
       --simultaneous-loading-and-query   whether to load data and run benchmark queries simultaneously
       --workspace string                 the workspace of mxbench, directory to dump or backup (default "/tmp/mxbench")
       --ddl-file-path string             the file path of ddl
+      --storage-type string              storage type
   -C, --config string                    configuration file to load
       --skip-set-gucs                    whether to skip set GUCs
       --pre-benchmark-query string       some specific sql such as analyze and vaccum database before run benchmark queries

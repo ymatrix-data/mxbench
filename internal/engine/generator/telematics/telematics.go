@@ -141,7 +141,7 @@ func (g *Generator) GetDefaultFlags() (*pflag.FlagSet, interface{}) {
 	return p, gCfg
 }
 
-var accMiscTime1, accMiscTime2, accGenTime, accWriteTime, accWriteSize int64
+var accMiscTime1, accGenTime, accWriteTime, accWriteSize int64
 var accWriteCnt, maxWriteSize int
 
 func (g *Generator) generateAndWriteBatch(batches [][]string, tpl [][]string, ts time.Time) error {
@@ -157,8 +157,6 @@ func (g *Generator) generateAndWriteBatch(batches [][]string, tpl [][]string, ts
 	// judge the number of tag num to form a batch
 	// TODO: extract to the caller and save the results in generator
 	tagIndexRanges := g.calTagIndexesOfBatches(batches)
-
-	accMiscTime2 += time.Since(tt).Nanoseconds()
 
 	var lastIndex int64
 	for _, index := range tagIndexRanges {

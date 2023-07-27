@@ -21,7 +21,7 @@ type StorageType = string
 
 const (
 	StorageMars2 StorageType = "mars2"
-	StorageMars  StorageType = "mars"
+	StorageMars3 StorageType = "mars3"
 	StorageHeap  StorageType = "heap"
 )
 
@@ -78,10 +78,11 @@ type Table struct {
 
 	// if it is from DDL, then the fields below are disabled
 	// TODO: may also do initialization in the future
-	DistKey string
-	Storage StorageType
-	Options Options
-	Indexes Indexes
+	DistKey    string
+	OrderByKey []string
+	Storage    StorageType
+	Options    Options
+	Indexes    Indexes
 }
 
 func (t *Table) Identifier() string {
@@ -96,40 +97,14 @@ func (t *Table) SingleRowMetricsSize() int64 {
 	return singleRowMetricsSize
 }
 
-// NewMars2Table creates a mars2 table with an index according to config.
-func NewMars2Table(cfg *Config) (*Table, error) {
-	tb := &Table{
-		Storage: StorageMars2,
-		// Inherit basic information from config
-		schemaName:        cfg.SchemaName,
-		name:              cfg.TableName,
-		TotalMetricsCount: cfg.TotalMetricsCount,
-		// Use default name and type for special columns:
-		// timestamp, vin, and ext column(may not be used, though)
-		ColumnNameTS:  ColumnNameTS,
-		ColumnNameVIN: ColumnNameVIN,
-		ColumnNameExt: ColumnNameExt,
-		ColumnTypeTS:  ColumnTypeTimestamp,
-		ColumnTypeVIN: ColumnTypeText,
-		ColumnTypeExt: ColumnTypeJSON,
-
-		JSONMetricsCandidateType: cfg.MetricsType,
-		// Set distribution key is as default: vin
-		DistKey: ColumnNameVIN,
-		// TODO(BP): decide options for mars2 table
-		Options: Options{
-			{
-				Name:  "compress_threshold",
-				Value: 1000,
-			},
-			{
-				Name:  "chunk_size",
-				Value: 32,
-			},
-		},
+// NewMarsTable creates a mars2 or mars3 table with an index according to config.
+func NewMarsTable(cfg *Config, st StorageType) (*Table, error) {
+	var err error
+	tb, err := NewTable(cfg, st)
+	if err != nil {
+		return nil, err
 	}
 
-	var err error
 	// Try to initialize the table's columns
 	// First of all, try to read and parse metrics-descriptions as a JSON array,
 	// which encodes types and columns, as well as specifications of configured metrics
@@ -160,8 +135,12 @@ func NewMars2Table(cfg *Config) (*Table, error) {
 	}
 
 	columns := make(Columns, NON_METRICS_COLUMN_NUM, columnNum)
-	columns[TSColumnIndex] = NewColumn(tb.ColumnNameTS, tb.ColumnTypeTS).WithEncoding("minmax")
-	columns[VINColumnIndex] = NewColumn(tb.ColumnNameVIN, tb.ColumnTypeVIN).WithEncoding("minmax")
+	var encoding string
+	if encoding, err = genEncoding(st); err != nil {
+		return nil, err
+	}
+	columns[TSColumnIndex] = NewColumn(tb.ColumnNameTS, tb.ColumnTypeTS).WithEncoding(encoding)
+	columns[VINColumnIndex] = NewColumn(tb.ColumnNameVIN, tb.ColumnTypeVIN).WithEncoding(encoding)
 
 	columnSpecs := make(ColumnSpecs, NON_METRICS_COLUMN_NUM, columnNum)
 
@@ -199,16 +178,89 @@ func NewMars2Table(cfg *Config) (*Table, error) {
 
 	// TODO(BP): decide TimeBucketInSecond according to ts-step etc.
 	// time_bucket may be deprecated in mars2_btree
-	tb.Indexes = Indexes{
-		NewMars2BTree(tb, 60, cfg.HasUniqueConstraints),
+
+	tb.Indexes, err = genMarsIndex(tb, st, cfg.HasUniqueConstraints)
+	if err != nil {
+		return nil, err
 	}
 
 	return tb, nil
 }
 
-func NewMarsTable(cfg *Config) (*Table, error) {
-	// TODO
-	return nil, nil
+func NewTable(cfg *Config, st StorageType) (*Table, error) {
+	var orderKey []string
+	var ops Options
+
+	switch st {
+	case StorageMars2:
+		orderKey = nil
+		ops = Options{
+			{
+				Name:  "compress_threshold",
+				Value: 1000,
+			},
+			{
+				Name:  "chunk_size",
+				Value: 32,
+			},
+		}
+
+	case StorageMars3:
+		orderKey = []string{ColumnNameVIN, ColumnNameTS}
+		ops = Options{
+			{
+				Name:  "compresstype",
+				Value: "lz4",
+			},
+		}
+	default:
+		return nil, mxerror.CommonErrorf("unsupport storage type: %s", st)
+	}
+
+	tb := &Table{
+		Storage: st,
+		// Inherit basic information from config
+		schemaName:        cfg.SchemaName,
+		name:              cfg.TableName,
+		TotalMetricsCount: cfg.TotalMetricsCount,
+		// Use default name and type for special columns:
+		// timestamp, vin, and ext column(may not be used, though)
+		ColumnNameTS:  ColumnNameTS,
+		ColumnNameVIN: ColumnNameVIN,
+		ColumnNameExt: ColumnNameExt,
+		ColumnTypeTS:  ColumnTypeTimestamp,
+		ColumnTypeVIN: ColumnTypeText,
+		ColumnTypeExt: ColumnTypeJSON,
+
+		JSONMetricsCandidateType: cfg.MetricsType,
+		// Set distribution key is as default: vin
+		DistKey:    ColumnNameVIN,
+		OrderByKey: orderKey,
+		Options:    ops,
+	}
+	return tb, nil
+}
+
+func genEncoding(st StorageType) (string, error) {
+	switch st {
+	case StorageMars2:
+		return "minmax", nil
+	case StorageMars3:
+		return "", nil
+	default:
+		return "", mxerror.CommonErrorf("unsupport storage type: %s", st)
+	}
+}
+
+func genMarsIndex(tb *Table, st StorageType, isUnique bool) (Indexes, error) {
+	switch st {
+	case StorageMars2:
+		return Indexes{NewMars2BTree(tb, 60, isUnique)}, nil
+	case StorageMars3:
+		return Indexes{NewMars3BTree(tb)}, nil
+	default:
+		return nil, mxerror.CommonErrorf("unsupport storage type: %s", st)
+	}
 }
 
 func NewHeapTable(cfg *Config) (*Table, error) {
