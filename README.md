@@ -184,6 +184,9 @@ $ cd <YMatrix安装目录>
   # 如果不跳过，mxbench会根据本配置文件呈现出的数据特征，选择一个合理的GUCs配置。
   # skip-set-gucs = false
 
+  # 存储类型，会根据存储类型生成相应的DDL文件。默认为 mars3， 支持 mars2 和 mars3
+  # storage-type = "mars3"
+
   # 是否同时执行数据加载和查询，可选true或false。
   # 如果选择true: 执行数据加载和查询的混合负载
   # query跑完之后会再循环跑，直到数据加载结束。
