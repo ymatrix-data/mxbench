@@ -212,6 +212,10 @@ func NewTable(cfg *Config, st StorageType) (*Table, error) {
 				Name:  "compresstype",
 				Value: "lz4",
 			},
+			{
+				Name:  "mars3options",
+				Value: "prefer_load_mode=bulk",
+			},
 		}
 	default:
 		return nil, mxerror.CommonErrorf("unsupport storage type: %s", st)
