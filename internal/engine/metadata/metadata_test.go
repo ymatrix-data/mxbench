@@ -62,6 +62,95 @@ var _ = Describe("Metadata", func() {
 		ddl := m.GetDDL()
 		Expect(ddl).To(Equal("\nCREATE EXTENSION IF NOT EXISTS matrixts;\nALTER EXTENSION matrixts UPDATE;\nCREATE SCHEMA IF NOT EXISTS \"public\";\nCREATE TABLE \"public\".\"xx\" (\n\tts timestamp ENCODING (minmax)\n  , vin text ENCODING (minmax)\n)\nUSING mars2 WITH ( compress_threshold='1000', chunk_size='32' )\nDISTRIBUTED BY (vin)\nPARTITION BY RANGE(ts) (\n\tSTART ('2015-12-31 00:00:00')\n\tEND ('2016-01-02 00:00:00')\n\tEVERY ('86400 second'),\n\tDEFAULT PARTITION default_prt\n);\n\nCREATE INDEX IF NOT EXISTS \"idx_xx\" ON \"public\".\"xx\"\nUSING mars2_btree(\n\tvin\n  , ts\n)\nWITH(uniquemode=false);\n"))
 	})
+	It("should CREATE TABLE with uniquemode set to true", func() {
+		startAt, _ := time.Parse(util.TIME_FMT, "2016-01-01 00:00:00")
+		endAt, _ := time.Parse(util.TIME_FMT, "2016-01-02 00:00:00")
+		_, err := New(&Config{
+			StartAt:              startAt,
+			EndAt:                endAt,
+			HasUniqueConstraints: true,
+			StorageType:          StorageMars2,
+		})
+		Expect(err).NotTo(BeNil())
+		_, err = New(&Config{
+			TableName:            "xx",
+			StartAt:              startAt,
+			EndAt:                endAt,
+			HasUniqueConstraints: true,
+			StorageType:          StorageMars2,
+		})
+		Expect(err).NotTo(BeNil())
+		_, err = New(&Config{
+			TableName:             "xx",
+			StartAt:               startAt,
+			EndAt:                 endAt,
+			TimestampStepInSecond: 1,
+			HasUniqueConstraints:  true,
+			StorageType:           StorageMars2,
+		})
+		Expect(err).NotTo(BeNil())
+		_, err = New(&Config{
+			TableName:             "xx",
+			StartAt:               startAt,
+			EndAt:                 endAt,
+			TimestampStepInSecond: 1,
+			MetricsType:           MetricsTypeFloat4,
+			HasUniqueConstraints:  true,
+			StorageType:           StorageMars2,
+		})
+		Expect(err).NotTo(BeNil())
+		_, err = New(&Config{
+			TableName:             "xx",
+			TagNum:                3125,
+			StartAt:               startAt,
+			EndAt:                 endAt,
+			TimestampStepInSecond: 1,
+			MetricsType:           MetricsTypeFloat4,
+			HasUniqueConstraints:  true,
+			StorageType:           StorageMars2,
+		})
+		Expect(err).NotTo(BeNil())
+		m, err := New(&Config{
+			SchemaName:            "public",
+			TableName:             "xx",
+			TagNum:                3125,
+			StartAt:               startAt,
+			EndAt:                 endAt,
+			TimestampStepInSecond: 1,
+			MetricsType:           MetricsTypeFloat4,
+			HasUniqueConstraints:  true,
+			StorageType:           StorageMars2,
+		})
+		Expect(err).To(BeNil())
+		ddl := m.GetDDL()
+		ddlExpect := `
+CREATE EXTENSION IF NOT EXISTS matrixts;
+ALTER EXTENSION matrixts UPDATE;
+CREATE SCHEMA IF NOT EXISTS "public";
+CREATE TABLE "public"."xx" (
+	ts timestamp ENCODING (minmax)
+  , vin text ENCODING (minmax)
+)
+USING mars2 WITH ( compress_threshold='1000', chunk_size='32' )
+DISTRIBUTED BY (vin)
+
+PARTITION BY RANGE(ts) (
+	START ('2015-12-31 00:00:00')
+	END ('2016-01-02 00:00:00')
+	EVERY ('86400 second'),
+	DEFAULT PARTITION default_prt
+);
+
+CREATE INDEX IF NOT EXISTS "idx_xx" ON "public"."xx"
+USING mars2_btree(
+	vin
+  , ts
+)
+WITH(uniquemode=true);
+`
+		Expect(ddl).To(Equal(ddlExpect))
+	})
+
 	It("should CREATE TABLE without json column", func() {
 		startAt, _ := time.Parse(util.TIME_FMT, "2016-01-01 00:00:00")
 		endAt, _ := time.Parse(util.TIME_FMT, "2016-01-02 00:00:00")
