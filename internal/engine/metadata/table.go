@@ -217,6 +217,12 @@ func NewTable(cfg *Config, st StorageType) (*Table, error) {
 				Value: "prefer_load_mode=bulk",
 			},
 		}
+		if cfg.HasUniqueConstraints {
+			ops = append(ops, &Option{
+				Name:  "uniquemode",
+				Value: "true",
+			})
+		}
 	default:
 		return nil, mxerror.CommonErrorf("unsupport storage type: %s", st)
 	}
