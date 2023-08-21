@@ -666,6 +666,10 @@ func (e *Engine) execQueries(queries string) error {
 	}
 
 	for _, q := range queryArr {
+		if q == "" {
+			continue
+		}
+
 		if err := e.execQuery(q); err != nil {
 			return err
 		}
