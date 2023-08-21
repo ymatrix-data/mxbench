@@ -478,7 +478,7 @@ func (e *Engine) handlePreSql() error {
 	if query != "" {
 		log.Info("Begin to run pre-benchmark query")
 		log.Info("Query is : [%v]", query)
-		return e.execQuery(query)
+		return e.execQueries(query)
 	}
 	return nil
 }
@@ -657,6 +657,20 @@ func (e *Engine) execQuery(query string) error {
 
 	_, err = conn.Exec(query)
 	return err
+}
+
+func (e *Engine) execQueries(queries string) error {
+	queryArr := strings.Split(queries, ";")
+	if len(queryArr) == 0 {
+		return fmt.Errorf("Got empty queries")
+	}
+
+	for _, q := range queryArr {
+		if err := e.execQuery(q); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (e *Engine) getTableSize() (int64, error) {
