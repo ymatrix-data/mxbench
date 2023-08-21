@@ -196,7 +196,7 @@ $ cd <YMatrix安装目录>
   # 如果 simultaneous-loading-and-query 设为false，
   # 那么 pre-benchmark-query 此参数才会生效。
   # （默认）为空，如果设置，则在执行查询前会优先执行此query。
-  # 例： "vaccum analyze;"
+  # 例： "vaccum full testtable; vaccum testtable; analyze testtable; "
   pre-benchmark-query = ""
 
   # 如果需要定制DDL，该参数填写DDL文件的路径。
