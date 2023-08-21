@@ -138,6 +138,9 @@ const DefaultConfigTemplate = `[benchmark]
   ## some specific sql such as analyze and vaccum database before run benchmark queries
   # pre-benchmark-query = ""
 
+  ## some specific commands before run benchmark queries
+  # pre-benchmark-query = ""
+
   ## keep generating data using current time as timestamp until mxbench gets terminated manually
   # realtime = false
 

@@ -47,3 +47,22 @@ func CreateDBIfNotExists(params DBConnParams) error {
 	}
 	return nil
 }
+
+func ExecuteDBCmd(cmd string, params DBConnParams) error {
+	_, stdout, stderr, err := runCmd(cmd, params.GetCreateDBParams()...)
+	var errString, stderrString, stdoutString string
+	if err != nil {
+		errString = err.Error()
+	}
+	if stdout != nil {
+		stdoutString = stdout.String()
+	}
+	if stderr != nil {
+		stderrString = stderr.String()
+	}
+
+	if err != nil || len(stderrString) > 0 || strings.Contains(stdoutString, "ERROR") {
+		return mxerror.CommonErrorf("err: %s\nstderr: %s\nstdout: %s", errString, stderrString, stdoutString)
+	}
+	return nil
+}

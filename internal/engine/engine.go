@@ -407,11 +407,18 @@ func (e *Engine) Run() error {
 			if err != nil {
 				return
 			}
+
 			if err = e.handlePreSql(); err != nil {
 				log.Error("Faild to run pre-benchmark query:[%v]", err)
 				return
 			}
 			log.Info("Finished run pre-benchmark query")
+
+			if err = e.handlePreCmd(); err != nil {
+				log.Error("Faild to run pre-benchmark command:[%v]", err)
+				return
+			}
+			log.Info("Finished run pre-benchmark command")
 
 		}
 		log.Info("Begin to run benchmark queries")
@@ -479,6 +486,16 @@ func (e *Engine) handlePreSql() error {
 		log.Info("Begin to run pre-benchmark query")
 		log.Info("Query is : [%v]", query)
 		return e.execQuery(query)
+	}
+	return nil
+}
+
+func (e *Engine) handlePreCmd() error {
+	cmd := e.Config.GlobalCfg.PreBenchmarkCmd
+	if cmd != "" {
+		log.Info("Begin to run pre-benchmark command")
+		log.Info("Command is : [%v]", cmd)
+		return util.ExecuteDBCmd(cmd, e.Config.DB)
 	}
 	return nil
 }
