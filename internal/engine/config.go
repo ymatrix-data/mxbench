@@ -52,6 +52,7 @@ type GlobalConfig struct {
 	PreBenchmarkQuery        string               `mapstructure:"pre-benchmark-query"`
 	SkipSetGUCs              bool                 `mapstructure:"skip-set-gucs"`
 	StorageType              string               `mapstructure:"storage-type"`
+	Degrade                  bool                 `mapstructure:"degrade"`
 
 	// misc
 	Command       string
@@ -172,6 +173,7 @@ func (cfg *Config) GlobalFlagSet() *pflag.FlagSet {
 	set.StringVarP(&cfg.GlobalCfg.CfgFile, "config", "C", "", "configuration file to load")
 	set.BoolVar(&cfg.GlobalCfg.SkipSetGUCs, "skip-set-gucs", false, "whether to skip set GUCs")
 	set.StringVar(&cfg.GlobalCfg.PreBenchmarkQuery, "pre-benchmark-query", "", "some specific sql such as analyze and vaccum database before run benchmark queries")
+	set.BoolVar(&cfg.GlobalCfg.Degrade, "degrade", false, "whether do degrade after load")
 
 	// misc
 	set.StringVar(&cfg.GlobalCfg.LogLevel, "log-level", "info", "log level. support \"debug\", \"verbose\", \"info\", \"error\"")

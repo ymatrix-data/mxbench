@@ -172,6 +172,11 @@ $ cd <YMatrix安装目录>
   # 5. mxbench_<generator-plugin>_data.csv: 相应generator插件生成的data的csv文件。
   dump = false
 
+  # 是否做转储到对象存储上，可选true或false
+  # 默认为false
+  # 配置为true，需要保证表配置了转储相关的表空间，并且配好了对象存储服务，如：minio
+  degrade = false
+
   # 是否开启进程观察，可选true或false。
   #（默认）如果选择true，则会每5秒打印一次writer和benchmark模块的执行进度信息。
   # 选择false关闭。
