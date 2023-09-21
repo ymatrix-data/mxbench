@@ -182,7 +182,7 @@ func (s *Stat) GetFormattedSummary() string {
 		log.Error("Failed to tranfer object to json string: [%v]", err)
 		return ""
 	}
-	rows := strconv.Itoa(concurrency) + "|" + string(resStr) + "\n"
+	rows := strconv.Itoa(concurrency) + "|" + string(resStr)
 	return rows
 
 }

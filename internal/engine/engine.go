@@ -55,8 +55,8 @@ type Engine struct {
 	Metadata   *metadata.Metadata
 	VolumeDesc VolumeDesc
 
-	degradeStartAt  time.Time
-	degradeStopAt   time.Time
+	degradeStartAt time.Time
+	degradeStopAt  time.Time
 
 	Config *Config
 
@@ -282,7 +282,7 @@ func (e *Engine) GetFormattedSummary() {
 			log.Warn("Report directory open failed: %v", err)
 		}
 		defer file.Close()
-		_, err = file.WriteString(row)
+		_, err = file.WriteString(row + "\n")
 		if err != nil {
 			log.Warn("Write report failed: %v", err)
 		}
