@@ -55,6 +55,9 @@ type Engine struct {
 	Metadata   *metadata.Metadata
 	VolumeDesc VolumeDesc
 
+	degradeStartAt time.Time
+	degradeStopAt  time.Time
+
 	Config *Config
 
 	ctx            context.Context
@@ -262,6 +265,14 @@ func (e *Engine) GetFormattedSummary() {
 	if stat := e.IBenchmark.GetStat(); stat != nil {
 		row += stat.GetFormattedSummary()
 	}
+
+	if e.Config.GlobalCfg.Degrade {
+		row += util.DELIMITER
+		degradeStartTime := e.degradeStartAt.Format(util.TIME_FMT)
+		degradeStopTime := e.degradeStopAt.Format(util.TIME_FMT)
+		row += strings.Join([]string{degradeStartTime, degradeStopTime}, util.DELIMITER)
+	}
+
 	// writer row to file
 	switch e.Config.GlobalCfg.ReportFormat {
 	case ReportFormatCSV:
@@ -271,7 +282,7 @@ func (e *Engine) GetFormattedSummary() {
 			log.Warn("Report directory open failed: %v", err)
 		}
 		defer file.Close()
-		_, err = file.WriteString(row)
+		_, err = file.WriteString(row + "\n")
 		if err != nil {
 			log.Warn("Write report failed: %v", err)
 		}
@@ -407,6 +418,13 @@ func (e *Engine) Run() error {
 			if err != nil {
 				return
 			}
+
+			if err = e.handleDegrade(); err != nil {
+				log.Error("Faild to run degrade:[%v]", err)
+				return
+			}
+			log.Info("Finished run degrade")
+
 			if err = e.handlePreSql(); err != nil {
 				log.Error("Faild to run pre-benchmark query:[%v]", err)
 				return
@@ -479,6 +497,21 @@ func (e *Engine) handlePreSql() error {
 		log.Info("Begin to run pre-benchmark query")
 		log.Info("Query is : [%v]", query)
 		return e.execQueries(query)
+	}
+	return nil
+}
+
+func (e *Engine) handleDegrade() error {
+	if e.Config.GlobalCfg.Degrade {
+		query := fmt.Sprintf("SELECT matrixts_internal.mars3_degrade('%s', -1);", e.Config.GlobalCfg.TableName)
+		log.Info("Begin to run degrade")
+		log.Info("Query is : [%v]", query)
+
+		e.degradeStartAt = time.Now()
+		err := e.execQueries(query)
+		e.degradeStopAt = time.Now()
+
+		return err
 	}
 	return nil
 }
