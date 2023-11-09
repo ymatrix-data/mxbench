@@ -30,6 +30,7 @@ type Config struct {
 	Randomness      RandomnessLevel `mapstructure:"generator-randomness"`
 	WriteBatchSize  int             `mapstructure:"generator-write-batch-size"`
 	NumGoRoutine    int             `mapstructure:"generator-num-goroutine"`
+	AddComment      bool            `mapstructure:"generator-add-comment"`
 
 	templateSize      int64
 	percentOfOutOrder int

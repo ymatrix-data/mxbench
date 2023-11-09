@@ -29,7 +29,7 @@ type JSON struct {
 	Age  int    `json:"number" fake:"{number:1,100}"`
 
 	valueRanges map[string]*mxmock.ValueRange
-	mu          sync.Mutex
+	mu          sync.RWMutex
 }
 
 func GetNewJSON(table *metadata.Table) func(string) mxmock.Type {
@@ -254,5 +254,8 @@ func (j *JSON) Keys() []string {
 }
 
 func (j *JSON) ValueRange() map[string]*mxmock.ValueRange {
+	j.mu.RLock()
+	defer j.mu.RUnlock()
+
 	return j.valueRanges
 }

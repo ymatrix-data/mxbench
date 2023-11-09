@@ -107,32 +107,28 @@ func (g *Generator) Run(cfg engine.GlobalConfig, meta *metadata.Metadata, writeF
 		return err
 	}
 
-	return g.commentOnExtendJsonColumn()
+	return g.commentOnColumns()
 }
 
-func (g *Generator) commentOnExtendJsonColumn() error {
-	var jsonColumn *mxmock.Column
-
-	for _, column := range g.meta.Table.Columns {
-		if column.Name == g.meta.Table.ColumnNameExt {
-			jsonColumn = column
-			break
-		}
-	}
-
-	if jsonColumn == nil && g.meta.Table.ExtColumn != nil {
-		if g.meta.Table.ExtColumn.TypeName == metadata.MetricsTypeJSON || g.meta.Table.ExtColumn.TypeName == metadata.MetricsTypeJSONB {
-			jsonColumn = g.meta.Table.ExtColumn
-		}
-	}
-
-	if jsonColumn == nil {
+func (g *Generator) commentOnColumns() error {
+	if !g.cfg.AddComment {
 		return nil
 	}
 
-	valueRange := jsonColumn.GetValueRange()
+	for _, column := range g.meta.Table.Columns {
+		err := g.commentOnColumn(column)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (g *Generator) commentOnColumn(column *mxmock.Column) error {
+	valueRange := column.GetValueRange()
 	if valueRange == nil {
-		log.Warn("[Generator.TELEMATICS] no value range for json column: %s", jsonColumn.Name)
+		log.Warn("[Generator.TELEMATICS] no value range for json column: %s", column.Name)
 		return nil
 	}
 
@@ -141,23 +137,36 @@ func (g *Generator) commentOnExtendJsonColumn() error {
 		return err
 	}
 
-	// add comment on column, the comment looks like:
+	// the comment should compitiable with the struct metadata.ColumnSpec, it may looks like:
 	//   {"columns-descriptions":[{"comment":{"max":0.9999534276152213,"min":0.000037607067498947235},"type":"float8"}]}
-	comments := make([]map[string]interface{}, 0, 10)
-	for tp, vr := range valueRange {
-		tmp := map[string]interface{}{
-			"type": tp,
-			"comment": map[string]interface{}{
+	var comment map[string]interface{}
+	if column.Name == g.meta.Table.ColumnNameExt || (column.TypeName == metadata.MetricsTypeJSON || column.TypeName == metadata.MetricsTypeJSONB) {
+		comments := make([]map[string]interface{}, 0, 10)
+
+		for tp, vr := range valueRange {
+			tmp := map[string]interface{}{
+				"type": tp,
+				"comment": map[string]interface{}{
+					"min":   vr.Min,
+					"max":   vr.Max,
+					"count": g.meta.Table.JSONMetricsCount,
+				},
+			}
+			comments = append(comments, tmp)
+		}
+
+		comment = map[string]interface{}{
+			"columns-descriptions": comments,
+		}
+	} else {
+		for _, vr := range valueRange {
+			comment = map[string]interface{}{
 				"min": vr.Min,
 				"max": vr.Max,
-			},
-			"count": g.meta.Table.JSONMetricsCount,
+			}
+			// for non json column, only has one type
+			break
 		}
-		comments = append(comments, tmp)
-	}
-
-	comment := map[string]interface{}{
-		"columns-descriptions": comments,
 	}
 
 	cm, err := json.Marshal(comment)
@@ -165,7 +174,7 @@ func (g *Generator) commentOnExtendJsonColumn() error {
 		return err
 	}
 
-	query := fmt.Sprintf("COMMENT ON COLUMN %s.%s IS '%s'", g.meta.Cfg.TableName, jsonColumn.Name, string(cm))
+	query := fmt.Sprintf("COMMENT ON COLUMN %s.%s IS '%s'", g.meta.Cfg.TableName, column.Name, string(cm))
 	log.Info("execute query: %s", query)
 	_, err = conn.ExecContext(g.ctx, query)
 	return err
