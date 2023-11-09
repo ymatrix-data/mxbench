@@ -3,6 +3,8 @@ package telematics
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"strings"
 	"sync"
@@ -100,7 +102,82 @@ func (g *Generator) Run(cfg engine.GlobalConfig, meta *metadata.Metadata, writeF
 		return nil
 	}
 
-	return g.write(tpl)
+	// can get columns here
+	// g.meta.Table.Columns
+	for _, column := range g.meta.Table.Columns {
+		log.Info("[Generator.TELEMATICS] column: %s, type: %s", column.Name, column.TypeName)
+	}
+
+	if g.meta.Table.ExtColumn != nil {
+		log.Info("[Generator.TELEMATICS] ext column: %s, type: %s", g.meta.Table.ExtColumn.Name, g.meta.Table.ExtColumn.TypeName)
+	}
+	/*
+		for _, column := range g.meta.Table.ExtColumn {
+			log.Info("[Generator.TELEMATICS] ext column: %s", column.Name)
+		}
+	*/
+
+	err = g.write(tpl)
+	if err != nil {
+		return err
+	}
+
+	for _, column := range g.meta.Table.Columns {
+		if column.TypeName != metadata.MetricsTypeJSON && column.TypeName != metadata.MetricsTypeJSONB {
+			continue
+		}
+
+		valueRange := column.GetValueRange()
+		if valueRange != nil {
+			//column.Comment = valueRange.ToJSON()
+			log.Info("[Generator.TELEMATICS] column: %s, type: %s, comment: %s, value range: %+v", column.Name, column.TypeName, column.Comment, valueRange)
+		}
+
+		conn, err := util.CreateDBConnection(g.meta.Cfg.DB)
+		if err != nil {
+			return err
+		}
+
+		// add comment on column
+		// COMMENT ON COLUMN table1.exttt is '{"is-ext": true, "columns-descriptions": [{"type": "float8", "count": 1, "comment": {"min": 3, "max": 4}},{"type": "float4", "count": 3, "comment": {"min": 2, "max": 3}}]}';
+
+		comment := make(map[string]interface{})
+		//comment["columns-descriptions"]
+		comments := make([]map[string]interface{}, 0, 10)
+		for tp, vr := range valueRange {
+			tmp := make(map[string]interface{})
+			tmp["type"] = tp
+			//tmp["comment"] = make(map[string]int)
+			tmp["comment"] = map[string]interface{}{
+				"min": vr.Min,
+				"max": vr.Max,
+			}
+
+			comments = append(comments, tmp)
+		}
+		comment["columns-descriptions"] = comments
+
+		cm, err := json.Marshal(comment)
+		if err != nil {
+			return err
+		}
+
+		query := fmt.Sprintf("COMMENT ON COLUMN %s.%s IS '%s'", g.meta.Cfg.TableName, column.Name, string(cm))
+		log.Info("execute query: %s", query)
+		_, err = conn.ExecContext(g.ctx, query)
+		if err != nil {
+			return err
+		}
+	}
+	// add comment on ext column
+	if g.meta.Table.ExtColumn != nil {
+		valueRange := g.meta.Table.ExtColumn.GetValueRange()
+		if valueRange != nil {
+			//g.meta.Table.ExtColumn.Comment = valueRange.ToJSON()
+			log.Info("[Generator.TELEMATICS] ext column: %s, type: %s, comment: %s, value range: %+v", g.meta.Table.ExtColumn.Name, g.meta.Table.ExtColumn.TypeName, g.meta.Table.ExtColumn.Comment, valueRange)
+		}
+	}
+	return nil
 }
 
 func (g *Generator) Close() error {

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	MAX_SIMPLE_COLUMN_NUM  = 1000
+	MAX_SIMPLE_COLUMN_NUM  = 10
 	NON_METRICS_COLUMN_NUM = 2 // ts, vin
 	EXT_COLUMN_NUM         = 1 // only 1 ext column, json/jsonb
 )

@@ -26,6 +26,10 @@ func (i *INet) Random(keys ...string) string {
 	return ""
 }
 
+func (i *INet) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type INets struct {
 	BaseType
 	inets []*INet
@@ -56,6 +60,10 @@ func (is INets) Random(keys ...string) string {
 
 func (is INets) Parse(string) {}
 
+func (is *INets) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type CIDR struct {
 	BaseType
 }
@@ -74,6 +82,10 @@ func (c *CIDR) Random(keys ...string) string {
 		return gofakeit.IPv6Address()
 	}
 	return ""
+}
+
+func (c *CIDR) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type CIDRs struct {
@@ -105,3 +117,7 @@ func (cs CIDRs) Random(keys ...string) string {
 }
 
 func (cs CIDRs) Parse(string) {}
+
+func (cs *CIDRs) ValueRange() map[string]*ValueRange {
+	return nil
+}

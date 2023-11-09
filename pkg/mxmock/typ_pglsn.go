@@ -28,6 +28,10 @@ func (p *PgLsn) Random(keys ...string) string {
 	return ""
 }
 
+func (p *PgLsn) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type PgLsns struct {
 	BaseType
 	pgLsns []*PgLsn
@@ -55,3 +59,7 @@ func (ps PgLsns) Random(keys ...string) string {
 }
 
 func (ps PgLsns) Parse(string) {}
+
+func (ps PgLsns) ValueRange() map[string]*ValueRange {
+	return nil
+}

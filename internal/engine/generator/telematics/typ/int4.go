@@ -42,3 +42,7 @@ func (i4 *Int4) Random(keys ...string) string {
 	}
 	return ""
 }
+
+func (i4 *Int4) ValueRange() map[string]*mxmock.ValueRange {
+	return nil
+}

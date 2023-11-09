@@ -65,3 +65,7 @@ func (cs *Column) WithEncoding(enc string) *Column {
 	cs.Encoding = enc
 	return cs
 }
+
+func (cs *Column) GetValueRange() map[string]*ValueRange {
+	return cs.mustGetTyp().ValueRange()
+}

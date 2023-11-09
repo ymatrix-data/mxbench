@@ -26,6 +26,10 @@ func (t *Text) Random(keys ...string) string {
 	return ""
 }
 
+func (t *Text) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Texts struct {
 	BaseType
 	texts []*Text
@@ -53,6 +57,10 @@ func (ts Texts) Random(keys ...string) string {
 }
 
 func (ts Texts) Parse(string) {}
+
+func (ts *Texts) ValueRange() map[string]*ValueRange {
+	return nil
+}
 
 // TODO
 type CiText struct{}

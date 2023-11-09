@@ -51,3 +51,7 @@ func (f4 *Float4) Random(keys ...string) string {
 	}
 	return ""
 }
+
+func (f4 *Float4) ValueRange() map[string]*mxmock.ValueRange {
+	return nil
+}

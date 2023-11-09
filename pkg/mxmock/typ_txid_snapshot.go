@@ -33,6 +33,10 @@ func (t *TxidSnapshot) Random(keys ...string) string {
 	return ""
 }
 
+func (t *TxidSnapshot) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type TxidSnapshots struct {
 	BaseType
 	txidSnapshots []*TxidSnapshot
@@ -60,3 +64,7 @@ func (ts TxidSnapshots) Random(keys ...string) string {
 }
 
 func (ts TxidSnapshots) Parse(string) {}
+
+func (ts *TxidSnapshots) ValueRange() map[string]*ValueRange {
+	return nil
+}

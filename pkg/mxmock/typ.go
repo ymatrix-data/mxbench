@@ -14,10 +14,21 @@ type Type interface {
 	Parse(string)
 	// Keys of this type have
 	Keys() []string
+
+	// the value range of type, for example: "int2": {"min": 1, "max": "32767"}
+	ValueRange() map[string]*ValueRange
 }
 
 type BaseType struct {
 	colName string
+
+	//min interface{}
+	//max interface{}
+}
+
+type ValueRange struct {
+	Min interface{} `json:"min"`
+	Max interface{} `json:"max"`
 }
 
 func NewBaseType(colName string) BaseType {
@@ -82,6 +93,16 @@ func (t *BaseType) CharLen(td string) (int, error) {
 	}
 	return returnValue, nil
 }
+
+/*
+func (t *BaseType) GetMaxValue() interface{} {
+	return t.max
+}
+
+func (t *BaseType) GetMinValue() interface{} {
+	return t.min
+}
+*/
 
 type NewFunc func(string) Type
 

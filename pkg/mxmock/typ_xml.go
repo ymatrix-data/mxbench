@@ -33,6 +33,10 @@ func (x *XML) Random(keys ...string) string {
 	return ""
 }
 
+func (x *XML) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type XMLs struct {
 	BaseType
 	xmls []*XML
@@ -60,3 +64,7 @@ func (xs XMLs) Random(keys ...string) string {
 }
 
 func (xs XMLs) Parse(string) {}
+
+func (xs *XMLs) ValueRange() map[string]*ValueRange {
+	return nil
+}

@@ -31,6 +31,10 @@ func (bp *BPChar) Parse(td string) {
 	bp.Length, _ = bp.CharLen(td)
 }
 
+func (bp *BPChar) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type BPChars struct {
 	BaseType
 	bpChars []*BPChar
@@ -63,6 +67,10 @@ func (bps BPChars) Parse(td string) {
 	}
 }
 
+func (bps *BPChars) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type VarChar struct {
 	BaseType
 	Length int
@@ -86,6 +94,10 @@ func (v *VarChar) Random(keys ...string) string {
 
 func (v *VarChar) Parse(td string) {
 	v.Length, _ = v.CharLen(td)
+}
+
+func (v *VarChar) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type VarChars struct {
@@ -118,4 +130,8 @@ func (vs VarChars) Parse(td string) {
 	for _, v := range vs.varChars {
 		v.Parse(td)
 	}
+}
+
+func (vs *VarChars) ValueRange() map[string]*ValueRange {
+	return nil
 }

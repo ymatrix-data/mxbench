@@ -26,6 +26,10 @@ func (d *Date) Random(keys ...string) string {
 	return ""
 }
 
+func (d *Date) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Dates struct {
 	BaseType
 	dates []*Date
@@ -54,6 +58,10 @@ func (ds Dates) Random(keys ...string) string {
 
 func (ds Dates) Parse(string) {}
 
+func (ds *Dates) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Time struct {
 	BaseType
 }
@@ -72,6 +80,10 @@ func (t Time) Random(keys ...string) string {
 		return gofakeit.Date().Format("15:04:05")
 	}
 	return ""
+}
+
+func (t *Time) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Times struct {
@@ -102,6 +114,10 @@ func (ts Times) Random(keys ...string) string {
 
 func (ts Times) Parse(string) {}
 
+func (ts Times) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type TimeTZ struct {
 	BaseType
 }
@@ -120,6 +136,10 @@ func (t *TimeTZ) Random(keys ...string) string {
 		return gofakeit.Date().Format("15:04:05.000000")
 	}
 	return ""
+}
+
+func (t *TimeTZ) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type TimeTZs struct {
@@ -150,6 +170,10 @@ func (ts TimeTZs) Random(keys ...string) string {
 
 func (ts TimeTZs) Parse(string) {}
 
+func (ts *TimeTZs) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Timestamp struct {
 	BaseType
 }
@@ -168,6 +192,10 @@ func (t *Timestamp) Random(keys ...string) string {
 		return gofakeit.Date().Format("2006-01-02 15:04:05")
 	}
 	return ""
+}
+
+func (t *Timestamp) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Timestamps struct {
@@ -198,6 +226,10 @@ func (ts Timestamps) Random(keys ...string) string {
 
 func (ts Timestamps) Parse(string) {}
 
+func (ts Timestamps) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type TimestampTZ struct {
 	BaseType
 }
@@ -216,6 +248,10 @@ func (t *TimestampTZ) Random(keys ...string) string {
 		return gofakeit.Date().Format("2006-01-02 15:04:05.000000")
 	}
 	return ""
+}
+
+func (t *TimestampTZ) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type TimestampTZs struct {
@@ -245,3 +281,7 @@ func (ts TimestampTZs) Random(keys ...string) string {
 }
 
 func (ts TimestampTZs) Parse(string) {}
+
+func (ts *TimestampTZs) ValueRange() map[string]*ValueRange {
+	return nil
+}
