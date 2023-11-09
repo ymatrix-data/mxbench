@@ -107,19 +107,17 @@ func (g *Generator) Run(cfg engine.GlobalConfig, meta *metadata.Metadata, writeF
 		return err
 	}
 
-	return g.commentOnJsonColumn()
+	return g.commentOnExtendJsonColumn()
 }
 
-func (g *Generator) commentOnJsonColumn() error {
+func (g *Generator) commentOnExtendJsonColumn() error {
 	var jsonColumn *mxmock.Column
 
 	for _, column := range g.meta.Table.Columns {
-		if column.TypeName != metadata.MetricsTypeJSON && column.TypeName != metadata.MetricsTypeJSONB {
-			continue
+		if column.Name == g.meta.Table.ColumnNameExt {
+			jsonColumn = column
+			break
 		}
-
-		jsonColumn = column
-		break
 	}
 
 	if jsonColumn == nil && g.meta.Table.ExtColumn != nil {
@@ -153,6 +151,7 @@ func (g *Generator) commentOnJsonColumn() error {
 				"min": vr.Min,
 				"max": vr.Max,
 			},
+			"count": g.meta.Table.JSONMetricsCount,
 		}
 		comments = append(comments, tmp)
 	}
