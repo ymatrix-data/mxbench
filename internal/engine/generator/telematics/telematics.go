@@ -144,8 +144,7 @@ func (g *Generator) commentOnJsonColumn() error {
 	}
 
 	// add comment on column, the comment looks like:
-	//   {"columns-descriptions":[{"comment":{"type":"float8", "max":0.9998930393450516,"min":0.000021307859306368606}}]}
-
+	//   {"columns-descriptions":[{"comment":{"max":0.9999534276152213,"min":0.000037607067498947235},"type":"float8"}]}
 	comments := make([]map[string]interface{}, 0, 10)
 	for tp, vr := range valueRange {
 		tmp := map[string]interface{}{
