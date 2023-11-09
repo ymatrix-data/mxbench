@@ -30,8 +30,6 @@ func GetNewFloat8(table *metadata.Table) func(string) mxmock.Type {
 }
 
 func (f8 *Float8) Random(keys ...string) string {
-	//fmt.Printf("float8 random, keys, %+v, column: %s\n, stack: %s", keys, f8.GetColName(), debug.Stack())
-
 	for _, key := range keys {
 		if key != f8.GetColName() {
 			continue

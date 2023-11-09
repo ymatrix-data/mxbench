@@ -100,18 +100,8 @@ func (j *JSON) Random(keys ...string) string {
 				continue
 			}
 
-			value := j.generateValue(j.metricsType, nil, nil)
-			//TODO: performance issue
-			switch j.metricsType {
-			case metadata.MetricsTypeInt4:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%d", key, value))
-			case metadata.MetricsTypeInt8:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%d", key, value))
-			case metadata.MetricsTypeFloat4:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%f", key, value))
-			case metadata.MetricsTypeFloat8:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%f", key, value))
-			}
+			_, kvStr := j.generateValue(j.metricsType, key, nil, nil)
+			vs = append(vs, kvStr)
 		}
 		buff.WriteString(strings.Join(vs, ","))
 		buff.WriteString("}\"")
@@ -133,31 +123,13 @@ func (j *JSON) Random(keys ...string) string {
 			continue
 		}
 
-		value := j.generateValue(columnsDesc.MetricsType, nil, nil)
-		//TODO: performance issue, support other types
 		if int(columnsDesc.Spec.Min) == 0 && int(columnsDesc.Spec.Max) == 0 {
-			switch columnsDesc.MetricsType {
-			case metadata.MetricsTypeInt4:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%d", key, value))
-			case metadata.MetricsTypeInt8:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%d", key, value))
-			case metadata.MetricsTypeFloat4:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%f", key, value))
-			case metadata.MetricsTypeFloat8:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%f", key, value))
-			}
+			_, kvStr := j.generateValue(columnsDesc.MetricsType, key, nil, nil)
+			vs = append(vs, kvStr)
+
 		} else {
-			value := j.generateValue(columnsDesc.MetricsType, columnsDesc.Spec.Min, columnsDesc.Spec.Max)
-			switch columnsDesc.MetricsType {
-			case metadata.MetricsTypeInt4:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%d", key, value))
-			case metadata.MetricsTypeInt8:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%d", key, value))
-			case metadata.MetricsTypeFloat4:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%f", key, value))
-			case metadata.MetricsTypeFloat8:
-				vs = append(vs, fmt.Sprintf("\"\"%s\"\":%f", key, value))
-			}
+			_, kvStr := j.generateValue(columnsDesc.MetricsType, key, columnsDesc.Spec.Min, columnsDesc.Spec.Max)
+			vs = append(vs, kvStr)
 		}
 
 	}
@@ -166,43 +138,54 @@ func (j *JSON) Random(keys ...string) string {
 	return buff.String()
 }
 
-func (j *JSON) generateValue(tp metadata.MetricsType, min, max interface{}) interface{} {
+// generate value and kv string
+func (j *JSON) generateValue(tp metadata.MetricsType, key string, min, max interface{}) (interface{}, string) {
 	var value interface{}
+	var kvStr string
 
+	//TODO: performance issue, support other types
 	if min == nil && max == nil {
 		// generate random value
 		switch tp {
 		case metadata.MetricsTypeInt4:
 			value = rand.Int31()
+			kvStr = fmt.Sprintf("\"\"%s\"\":%d", key, value)
 		case metadata.MetricsTypeInt8:
 			value = rand.Int63()
+			kvStr = fmt.Sprintf("\"\"%s\"\":%d", key, value)
 		case metadata.MetricsTypeFloat4:
 			value = rand.Float32()
+			kvStr = fmt.Sprintf("\"\"%s\"\":%f", key, value)
 		case metadata.MetricsTypeFloat8:
 			value = rand.Float64()
+			kvStr = fmt.Sprintf("\"\"%s\"\":%f", key, value)
 		}
 	} else {
 		// generate random value within range
 		switch tp {
 		case metadata.MetricsTypeInt4:
 			value = rand.Int31n(max.(int32)-min.(int32)) + min.(int32)
+			kvStr = fmt.Sprintf("\"\"%s\"\":%d", key, value)
 		case metadata.MetricsTypeInt8:
 			value = rand.Int63n(max.(int64)-min.(int64)) + min.(int64)
+			kvStr = fmt.Sprintf("\"\"%s\"\":%d", key, value)
 		case metadata.MetricsTypeFloat4:
 			value = rand.Float32()*(max.(float32)-min.(float32)) + min.(float32)
+			kvStr = fmt.Sprintf("\"\"%s\"\":%f", key, value)
 		case metadata.MetricsTypeFloat8:
 			value = rand.Float64()*(max.(float64)-min.(float64)) + min.(float64)
+			kvStr = fmt.Sprintf("\"\"%s\"\":%f", key, value)
 		}
 	}
 
 	if value == nil {
 		// should not happen
-		return value
+		return value, kvStr
 	}
 
 	j.updateRange(tp, value)
 
-	return value
+	return value, kvStr
 }
 
 // update value range based on type
