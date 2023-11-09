@@ -38,20 +38,8 @@ func (f8 *Float8) Random(keys ...string) string {
 		if key != f8.GetColName() {
 			continue
 		}
-		//TODO: performance issue
-		if f8.columnSpec == nil || (int(f8.columnSpec.Min) == 0 && int(f8.columnSpec.Max) == 0) {
-			return fmt.Sprintf("%f", rand.Float64())
-		}
-		switch f8.columnSpec.Name {
-		case _NULL:
-			return ""
-		default:
-		}
-		value := rand.Float64()*(f8.columnSpec.Max-f8.columnSpec.Min) + f8.columnSpec.Min
-		if f8.columnSpec.IsRounded {
-			return fmt.Sprintf("%f", roundFloat(value, f8.columnSpec.DecimalPlaces))
-		}
-		return fmt.Sprintf("%f", value)
+
+		return f8.generateValue()
 
 	}
 	return ""

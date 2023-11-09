@@ -160,6 +160,9 @@ func (g *Generator) commentOnColumn(column *mxmock.Column) error {
 		}
 	} else {
 		for _, vr := range valueRange {
+			if vr == nil {
+				continue
+			}
 			comment = map[string]interface{}{
 				"min": vr.Min,
 				"max": vr.Max,
