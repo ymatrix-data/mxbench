@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/ymatrix-data/mxbench/internal/util/log"
 )
 
 type JSON struct {
@@ -22,9 +21,6 @@ func NewJSON(colName string) Type {
 }
 
 func (j *JSON) Random(keys ...string) string {
-	// print key and colName
-
-	log.Info("json colName: %s, keys: %+v", j.colName, keys)
 	for _, key := range keys {
 		if key != j.colName {
 			continue
@@ -53,8 +49,6 @@ func NewJSONs(colName string) Type {
 }
 
 func (js JSONs) Random(keys ...string) string {
-	log.Info("json colName: %s, keys: %+v", js.colName, keys)
-
 	for _, key := range keys {
 		if key != js.colName {
 			continue

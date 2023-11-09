@@ -170,11 +170,7 @@ func (g *Generator) commentOnJsonColumn() error {
 	query := fmt.Sprintf("COMMENT ON COLUMN %s.%s IS '%s'", g.meta.Cfg.TableName, jsonColumn.Name, string(cm))
 	log.Info("execute query: %s", query)
 	_, err = conn.ExecContext(g.ctx, query)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (g *Generator) Close() error {

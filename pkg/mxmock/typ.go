@@ -21,9 +21,6 @@ type Type interface {
 
 type BaseType struct {
 	colName string
-
-	//min interface{}
-	//max interface{}
 }
 
 type ValueRange struct {
@@ -93,16 +90,6 @@ func (t *BaseType) CharLen(td string) (int, error) {
 	}
 	return returnValue, nil
 }
-
-/*
-func (t *BaseType) GetMaxValue() interface{} {
-	return t.max
-}
-
-func (t *BaseType) GetMinValue() interface{} {
-	return t.min
-}
-*/
 
 type NewFunc func(string) Type
 

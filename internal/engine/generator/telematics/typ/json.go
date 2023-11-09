@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"sync"
 
 	"github.com/brianvoe/gofakeit/v6"
 
@@ -28,6 +29,7 @@ type JSON struct {
 	Age  int    `json:"number" fake:"{number:1,100}"`
 
 	valueRanges map[string]*mxmock.ValueRange
+	mu          sync.Mutex
 }
 
 func GetNewJSON(table *metadata.Table) func(string) mxmock.Type {
@@ -71,7 +73,6 @@ func (j *JSON) Random(keys ...string) string {
 	// if it not for ext column to accommodate a lot of non-json metrics
 	// i.e. it is just an average json column
 
-	//log.Info("isCommentedExt: %v, json random colName: %s, keys: %+v", j.isCommentedExt, j.columnName, keys)
 	if !j.isCommentedExt {
 		for _, key := range keys {
 			if key != j.columnName {
@@ -167,39 +168,30 @@ func (j *JSON) Random(keys ...string) string {
 
 func (j *JSON) generateValue(tp metadata.MetricsType, min, max interface{}) interface{} {
 	var value interface{}
-	//var valueStr string
 
 	if min == nil && max == nil {
 		// generate random value
 		switch tp {
 		case metadata.MetricsTypeInt4:
 			value = rand.Int31()
-			//valueStr = fmt.Sprintf("%d", value)
 		case metadata.MetricsTypeInt8:
 			value = rand.Int63()
-			//valueStr = fmt.Sprintf("%d", value)
 		case metadata.MetricsTypeFloat4:
 			value = rand.Float32()
-			//valueStr = fmt.Sprintf("%f", value)
 		case metadata.MetricsTypeFloat8:
 			value = rand.Float64()
-			//valueStr = fmt.Sprintf("%f", value)
 		}
 	} else {
 		// generate random value within range
 		switch tp {
 		case metadata.MetricsTypeInt4:
 			value = rand.Int31n(max.(int32)-min.(int32)) + min.(int32)
-			//valueStr = fmt.Sprintf("%d", value)
 		case metadata.MetricsTypeInt8:
 			value = rand.Int63n(max.(int64)-min.(int64)) + min.(int64)
-			//valueStr = fmt.Sprintf("%d", value)
 		case metadata.MetricsTypeFloat4:
 			value = rand.Float32()*(max.(float32)-min.(float32)) + min.(float32)
-			//valueStr = fmt.Sprintf("%f", value)
 		case metadata.MetricsTypeFloat8:
 			value = rand.Float64()*(max.(float64)-min.(float64)) + min.(float64)
-			//valueStr = fmt.Sprintf("%f", value)
 		}
 	}
 
@@ -215,6 +207,9 @@ func (j *JSON) generateValue(tp metadata.MetricsType, min, max interface{}) inte
 
 // update value range based on type
 func (j *JSON) updateRange(tp metadata.MetricsType, value interface{}) {
+	j.mu.Lock()
+	defer j.mu.Unlock()
+
 	if _, ok := j.valueRanges[tp]; !ok {
 		j.valueRanges[tp] = &mxmock.ValueRange{
 			Min: value,
