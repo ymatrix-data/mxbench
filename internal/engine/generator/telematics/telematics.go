@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/pflag"
 	"golang.org/x/sync/errgroup"
 
@@ -115,8 +116,13 @@ func (g *Generator) commentOnColumns() error {
 		return nil
 	}
 
+	conn, err := util.CreateDBConnection(g.meta.Cfg.DB)
+	if err != nil {
+		return err
+	}
+
 	for _, column := range g.meta.Table.Columns {
-		err := g.commentOnColumn(column)
+		err := g.commentOnColumn(conn, column)
 		if err != nil {
 			return err
 		}
@@ -125,16 +131,11 @@ func (g *Generator) commentOnColumns() error {
 	return nil
 }
 
-func (g *Generator) commentOnColumn(column *mxmock.Column) error {
+func (g *Generator) commentOnColumn(conn *sqlx.DB, column *mxmock.Column) error {
 	valueRange := column.GetValueRange()
 	if valueRange == nil {
 		log.Warn("[Generator.TELEMATICS] no value range for json column: %s", column.Name)
 		return nil
-	}
-
-	conn, err := util.CreateDBConnection(g.meta.Cfg.DB)
-	if err != nil {
-		return err
 	}
 
 	// the comment should compitiable with the struct metadata.ColumnSpec, it may looks like:
@@ -170,6 +171,10 @@ func (g *Generator) commentOnColumn(column *mxmock.Column) error {
 			// for non json column, only has one type
 			break
 		}
+	}
+
+	if comment == nil {
+		return nil
 	}
 
 	cm, err := json.Marshal(comment)
@@ -215,6 +220,7 @@ func (g *Generator) GetDefaultFlags() (*pflag.FlagSet, interface{}) {
 
 	p.IntVar(&gCfg.NumGoRoutine, "generator-num-goroutine", 1, "num of goroutines that it will use to call write function")
 	p.IntVar(&gCfg.WriteBatchSize, "generator-write-batch-size", 4, "the estimated mega bytes of batch size to call write function")
+	p.BoolVar(&gCfg.AddComment, "generator-add-comment", false, "add comment on columns, including min/max value of columns")
 
 	_ = p.MarkHidden("generator-num-goroutine")
 	_ = p.MarkHidden("generator-write-batch-size")
