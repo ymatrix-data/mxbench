@@ -148,10 +148,10 @@ func (g *Generator) commentOnColumn(conn *sqlx.DB, column *mxmock.Column) error 
 			tmp := map[string]interface{}{
 				"type": tp,
 				"comment": map[string]interface{}{
-					"min":   vr.Min,
-					"max":   vr.Max,
-					"count": g.meta.Table.JSONMetricsCount,
+					"min": vr.Min,
+					"max": vr.Max,
 				},
+				"count": g.meta.Table.JSONMetricsCount,
 			}
 			comments = append(comments, tmp)
 		}
