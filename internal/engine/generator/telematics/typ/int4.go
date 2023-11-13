@@ -83,6 +83,4 @@ func (i4 *Int4) updateValueRange(value int32) {
 			i4.valueRanges.Max = value
 		}
 	}
-
-	return
 }

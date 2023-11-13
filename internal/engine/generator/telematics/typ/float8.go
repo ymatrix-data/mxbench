@@ -100,6 +100,4 @@ func (f8 *Float8) updateValueRange(value float64) {
 			f8.valueRanges.Max = value
 		}
 	}
-
-	return
 }

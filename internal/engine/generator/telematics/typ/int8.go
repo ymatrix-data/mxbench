@@ -83,6 +83,4 @@ func (i8 *Int8) updateValueRange(value int64) {
 			i8.valueRanges.Max = value
 		}
 	}
-
-	return
 }

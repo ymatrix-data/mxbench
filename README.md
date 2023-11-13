@@ -294,6 +294,9 @@ $ cd <YMatrix安装目录>
     # 生成数据的缓存大小，即生成多少数据，调用一次写入writer的函数、向mxgate发一次请求，加载数据。
     # 默认为4，单位为MB。
     # generator-write-batch-size = 4
+
+    # 是否为列加上 comment，comment 中包含生成数据（float，int 类型）的大小范围。
+    # generator-add-comment = false
 ```
 
 ##### 2.2.3.2 file

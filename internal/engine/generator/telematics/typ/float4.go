@@ -94,6 +94,4 @@ func (f4 *Float4) updateValueRange(value float32) {
 			f4.valueRanges.Max = value
 		}
 	}
-
-	return
 }

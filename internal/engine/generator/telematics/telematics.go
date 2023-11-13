@@ -120,6 +120,7 @@ func (g *Generator) commentOnColumns() error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 
 	for _, column := range g.meta.Table.Columns {
 		err := g.commentOnColumn(conn, column)
