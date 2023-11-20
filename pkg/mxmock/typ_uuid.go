@@ -26,6 +26,10 @@ func (u *UUID) Random(keys ...string) string {
 	return ""
 }
 
+func (u *UUID) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type UUIDs struct {
 	BaseType
 	uuids []*UUID
@@ -54,3 +58,7 @@ func (us UUIDs) Random(keys ...string) string {
 }
 
 func (us UUIDs) Parse(string) {}
+
+func (us *UUIDs) ValueRange() map[string]*ValueRange {
+	return nil
+}

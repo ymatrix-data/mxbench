@@ -32,6 +32,10 @@ func (j *JSON) Random(keys ...string) string {
 	return "{}"
 }
 
+func (j *JSON) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type JSONs struct {
 	BaseType
 	jsons []*JSON
@@ -59,6 +63,11 @@ func (js JSONs) Random(keys ...string) string {
 }
 
 func (js JSONs) Parse(string) {}
+
+func (js *JSONs) ValueRange() map[string]*ValueRange {
+	// TODO: implement
+	return nil
+}
 
 type JSONB = JSON
 type JSONBs = JSONs

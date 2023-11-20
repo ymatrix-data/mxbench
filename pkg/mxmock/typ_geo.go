@@ -33,6 +33,10 @@ func (b *Box) Random(keys ...string) string {
 	return ""
 }
 
+func (b *Box) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Boxes struct {
 	BaseType
 	boxes []*Box
@@ -61,6 +65,10 @@ func (bs Boxes) Random(keys ...string) string {
 
 func (bs Boxes) Parse(string) {}
 
+func (bs Boxes) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Circle struct {
 	BaseType
 }
@@ -84,6 +92,10 @@ func (c *Circle) Random(keys ...string) string {
 		)
 	}
 	return ""
+}
+
+func (c *Circle) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Circles struct {
@@ -113,6 +125,10 @@ func (cs Circles) Random(keys ...string) string {
 }
 
 func (cs Circles) Parse(string) {}
+
+func (cs Circles) ValueRange() map[string]*ValueRange {
+	return nil
+}
 
 type Line = Box
 
@@ -154,6 +170,10 @@ func (p *Point) Random(keys ...string) string {
 	return ""
 }
 
+func (p *Point) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Points struct {
 	BaseType
 	points []*Point
@@ -181,3 +201,7 @@ func (ps Points) Random(keys ...string) string {
 }
 
 func (ps Points) Parse(string) {}
+
+func (ps Points) ValueRange() map[string]*ValueRange {
+	return nil
+}

@@ -31,6 +31,10 @@ func (b ByteA) Random(keys ...string) string {
 	return ""
 }
 
+func (b *ByteA) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type ByteAs struct {
 	BaseType
 	byteAs []*ByteA
@@ -57,3 +61,7 @@ func (bs ByteAs) Random(keys ...string) string {
 }
 
 func (bs ByteAs) Parse(string) {}
+
+func (bs *ByteAs) ValueRange() map[string]*ValueRange {
+	return nil
+}

@@ -39,6 +39,10 @@ func (b *Bit) Parse(td string) {
 	b.Length, _ = b.CharLen(td)
 }
 
+func (b *Bit) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Bits struct {
 	BaseType
 	bits []*Bit
@@ -69,6 +73,10 @@ func (bs Bits) Parse(td string) {
 	for _, b := range bs.bits {
 		b.Parse(td)
 	}
+}
+
+func (b *Bits) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type VarBit = Bit

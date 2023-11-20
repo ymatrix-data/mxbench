@@ -14,10 +14,18 @@ type Type interface {
 	Parse(string)
 	// Keys of this type have
 	Keys() []string
+
+	// the value range of type, for example: "int2": {"min": 1, "max": "32767"}
+	ValueRange() map[string]*ValueRange
 }
 
 type BaseType struct {
 	colName string
+}
+
+type ValueRange struct {
+	Min interface{} `json:"min"`
+	Max interface{} `json:"max"`
 }
 
 func NewBaseType(colName string) BaseType {

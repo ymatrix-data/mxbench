@@ -26,6 +26,10 @@ func (m *MacAddr) Random(keys ...string) string {
 	return ""
 }
 
+func (m *MacAddr) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type MacAddrs struct {
 	BaseType
 	macAddrs []*MacAddr
@@ -53,3 +57,7 @@ func (ms MacAddrs) Random(keys ...string) string {
 }
 
 func (ms MacAddrs) Parse(string) {}
+
+func (ms *MacAddrs) ValueRange() map[string]*ValueRange {
+	return nil
+}

@@ -38,6 +38,10 @@ func (t *TSQuery) Random(keys ...string) string {
 	return ""
 }
 
+func (t *TSQuery) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type TSQueries struct {
 	BaseType
 	tsQueries []*TSQuery
@@ -66,6 +70,10 @@ func (ts TSQueries) Random(keys ...string) string {
 
 func (ts TSQueries) Parse(string) {}
 
+func (ts *TSQueries) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type TSVector struct {
 	BaseType
 }
@@ -84,6 +92,10 @@ func (t *TSVector) Random(keys ...string) string {
 		return gofakeit.Sentence(100)
 	}
 	return ""
+}
+
+func (t *TSVector) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type TSVectors struct {
@@ -113,3 +125,7 @@ func (ts TSVectors) Random(keys ...string) string {
 }
 
 func (ts TSVectors) Parse(string) {}
+
+func (ts *TSVectors) ValueRange() map[string]*ValueRange {
+	return nil
+}

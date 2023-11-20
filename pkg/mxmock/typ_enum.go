@@ -55,3 +55,7 @@ func NewEnum(dt string, conn *sqlx.DB) (*Enum, error) {
 func (e Enum) Random(keys ...string) string {
 	return gofakeit.RandomString(e.vals)
 }
+
+func (e *Enum) ValueRange() map[string]*ValueRange {
+	return nil
+}

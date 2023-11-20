@@ -3,11 +3,14 @@ package telematics
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/pflag"
 	"golang.org/x/sync/errgroup"
 
@@ -100,7 +103,90 @@ func (g *Generator) Run(cfg engine.GlobalConfig, meta *metadata.Metadata, writeF
 		return nil
 	}
 
-	return g.write(tpl)
+	err = g.write(tpl)
+	if err != nil {
+		return err
+	}
+
+	return g.commentOnColumns()
+}
+
+func (g *Generator) commentOnColumns() error {
+	if !g.cfg.AddComment {
+		return nil
+	}
+
+	conn, err := util.CreateDBConnection(g.meta.Cfg.DB)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	for _, column := range g.meta.Table.Columns {
+		err := g.commentOnColumn(conn, column)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (g *Generator) commentOnColumn(conn *sqlx.DB, column *mxmock.Column) error {
+	valueRange := column.GetValueRange()
+	if valueRange == nil {
+		log.Warn("[Generator.TELEMATICS] no value range for json column: %s", column.Name)
+		return nil
+	}
+
+	// the comment should compitiable with the struct metadata.ColumnSpec, it may looks like:
+	//   {"columns-descriptions":[{"comment":{"max":0.9999534276152213,"min":0.000037607067498947235},"type":"float8"}]}
+	var comment map[string]interface{}
+	if column.Name == g.meta.Table.ColumnNameExt || (column.TypeName == metadata.MetricsTypeJSON || column.TypeName == metadata.MetricsTypeJSONB) {
+		comments := make([]map[string]interface{}, 0, 10)
+
+		for tp, vr := range valueRange {
+			tmp := map[string]interface{}{
+				"type": tp,
+				"comment": map[string]interface{}{
+					"min": vr.Min,
+					"max": vr.Max,
+				},
+				"count": g.meta.Table.JSONMetricsCount,
+			}
+			comments = append(comments, tmp)
+		}
+
+		comment = map[string]interface{}{
+			"columns-descriptions": comments,
+		}
+	} else {
+		for _, vr := range valueRange {
+			if vr == nil {
+				continue
+			}
+			comment = map[string]interface{}{
+				"min": vr.Min,
+				"max": vr.Max,
+			}
+			// for non json column, only has one type
+			break
+		}
+	}
+
+	if comment == nil {
+		return nil
+	}
+
+	cm, err := json.Marshal(comment)
+	if err != nil {
+		return err
+	}
+
+	query := fmt.Sprintf("COMMENT ON COLUMN %s.%s IS '%s'", g.meta.Cfg.TableName, column.Name, string(cm))
+	log.Info("execute query: %s", query)
+	_, err = conn.ExecContext(g.ctx, query)
+	return err
 }
 
 func (g *Generator) Close() error {
@@ -135,6 +221,7 @@ func (g *Generator) GetDefaultFlags() (*pflag.FlagSet, interface{}) {
 
 	p.IntVar(&gCfg.NumGoRoutine, "generator-num-goroutine", 1, "num of goroutines that it will use to call write function")
 	p.IntVar(&gCfg.WriteBatchSize, "generator-write-batch-size", 4, "the estimated mega bytes of batch size to call write function")
+	p.BoolVar(&gCfg.AddComment, "generator-add-comment", false, "add comment on columns, including min/max value of columns")
 
 	_ = p.MarkHidden("generator-num-goroutine")
 	_ = p.MarkHidden("generator-write-batch-size")

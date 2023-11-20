@@ -29,6 +29,10 @@ func (f4 *Float4) Random(keys ...string) string {
 	return ""
 }
 
+func (f4 *Float4) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Float4s struct {
 	BaseType
 	float4s []*Float4
@@ -57,6 +61,10 @@ func (f4s Float4s) Random(keys ...string) string {
 
 func (f4s Float4s) Parse(string) {}
 
+func (f4s *Float4s) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Float8 struct {
 	BaseType
 }
@@ -75,6 +83,10 @@ func (f8 *Float8) Random(keys ...string) string {
 		return fmt.Sprintf("%f", gofakeit.Float32Range(-2767, 2767))
 	}
 	return ""
+}
+
+func (f8 *Float8) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Float8s struct {
@@ -104,6 +116,10 @@ func (f8s Float8s) Random(keys ...string) string {
 }
 
 func (f8s Float8s) Parse(string) {}
+
+func (f8s *Float8s) ValueRange() map[string]*ValueRange {
+	return nil
+}
 
 type Numeric struct {
 	BaseType
@@ -135,6 +151,10 @@ func (n *Numeric) Random(keys ...string) string {
 		return fmt.Sprintf(fmtStr, f)
 	}
 	return ""
+}
+
+func (n *Numeric) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Numerics struct {
@@ -169,6 +189,10 @@ func (ns Numerics) Parse(td string) {
 	}
 }
 
+func (ns *Numerics) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Money struct {
 	BaseType
 }
@@ -187,6 +211,10 @@ func (m *Money) Random(keys ...string) string {
 		return fmt.Sprintf("%f", gofakeit.Float32Range(-2767, 2767))
 	}
 	return ""
+}
+
+func (m *Money) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Moneys struct {
@@ -216,3 +244,7 @@ func (ms Moneys) Random(keys ...string) string {
 }
 
 func (ms Moneys) Parse(string) {}
+
+func (ms *Moneys) ValueRange() map[string]*ValueRange {
+	return nil
+}

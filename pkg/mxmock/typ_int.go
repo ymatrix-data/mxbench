@@ -27,6 +27,10 @@ func (i2 *Int2) Random(keys ...string) string {
 	return ""
 }
 
+func (i2 *Int2) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Int2s struct {
 	BaseType
 	int2s []*Int2
@@ -55,6 +59,10 @@ func (i2s Int2s) Random(keys ...string) string {
 
 func (i2s Int2s) Parse(string) {}
 
+func (i2s *Int2s) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Int4 struct {
 	BaseType
 }
@@ -73,6 +81,10 @@ func (i4 *Int4) Random(keys ...string) string {
 		return fmt.Sprintf("%d", gofakeit.Number(-7483647, 7483647))
 	}
 	return ""
+}
+
+func (i4 *Int4) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Int4s struct {
@@ -103,6 +115,10 @@ func (i4s Int4s) Random(keys ...string) string {
 
 func (i4s Int4s) Parse(string) {}
 
+func (i4s *Int4s) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Int8 struct {
 	BaseType
 }
@@ -121,6 +137,10 @@ func (i8 *Int8) Random(keys ...string) string {
 		return fmt.Sprintf("%d", gofakeit.Number(-372036854775807, 372036854775807))
 	}
 	return ""
+}
+
+func (i8 *Int8) ValueRange() map[string]*ValueRange {
+	return nil
 }
 
 type Int8s struct {
@@ -151,6 +171,10 @@ func (i8s Int8s) Random(keys ...string) string {
 
 func (i8s Int8s) Parse(string) {}
 
+func (i8s *Int8s) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Oid struct {
 	BaseType
 }
@@ -169,4 +193,8 @@ func (id *Oid) Random(keys ...string) string {
 		return fmt.Sprintf("%d", gofakeit.Number(-7483647, 7483647))
 	}
 	return ""
+}
+
+func (id *Oid) ValueRange() map[string]*ValueRange {
+	return nil
 }

@@ -27,6 +27,10 @@ func (b *Bool) Random(keys ...string) string {
 	return ""
 }
 
+func (b *Bool) ValueRange() map[string]*ValueRange {
+	return nil
+}
+
 type Bools struct {
 	BaseType
 	bools []*Bool
@@ -54,3 +58,7 @@ func (bs Bools) Random(keys ...string) string {
 }
 
 func (bs Bools) Parse(string) {}
+
+func (bs *Bools) ValueRange() map[string]*ValueRange {
+	return nil
+}
