@@ -46,10 +46,6 @@ func NewGUC(name, masterValue, segmentValue string) *GUC {
 
 func NewGUCs(cfg *Config) GUCs {
 	//TODO: decide value according to cfg
-	mars2Prefix := _MARS2_GUC_PREFIX_AT_OR_AFTER_MAJOR_5
-	if cfg.DBVersion.SemVer.Major < util.MAJOR_VERSION_5 {
-		mars2Prefix = _MARS2_GUC_PREFIX_BEFORE_MAJOR_VERSION_5
-	}
 	return GUCs{
 		NewGUCForBothRoles("optimizer", "off"),
 		NewGUCForBothRoles("resource_scheduler", "off"),
@@ -64,13 +60,6 @@ func NewGUCs(cfg *Config) GUCs {
 		NewGUCForBothRoles("log_min_messages", "warning"),
 		NewGUCForBothRoles("log_rotation_size", "200MB"),
 		NewGUCForBothRoles("log_min_duration_statement", "2s"),
-
-		NewGUCForBothRoles(mars2Prefix+"rowcompress", "off"),
-		NewGUCForBothRoles(mars2Prefix+"debug_pages", "off"),
-		NewGUCForBothRoles(mars2Prefix+"debug_merge", "on"),
-		NewGUCForBothRoles(mars2Prefix+"insertdelay_ms", "1000"),
-		NewGUCForBothRoles(mars2Prefix+"automerge_threshold", "32"),
-		NewGUCForBothRoles(mars2Prefix+"insertdelay_threshold", "600"),
 
 		NewGUCForBothRoles("wal_keep_segments", "32"),
 		NewGUCForBothRoles("max_wal_size", "4GB"),
