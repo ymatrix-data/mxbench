@@ -11,6 +11,7 @@ import (
 	"github.com/ymatrix-data/mxbench/internal/engine/writer/http"
 	ni "github.com/ymatrix-data/mxbench/internal/engine/writer/nil"
 	"github.com/ymatrix-data/mxbench/internal/engine/writer/stdin"
+	fi "github.com/ymatrix-data/mxbench/internal/engine/writer/file"
 	"github.com/ymatrix-data/mxbench/internal/util/log"
 )
 
@@ -22,6 +23,8 @@ func GetWriter(cfg engine.WriterConfig) func(engine.WriterConfig) engine.IWriter
 		return stdin.NewWriter
 	case "nil":
 		return ni.NewWriter
+	case "file":
+		return fi.NewWriter
 	}
 
 	log.Fatal(errors.New(""), fmt.Sprintf("Unknown writer plugin %s", cfg.Plugin))
@@ -39,6 +42,8 @@ func GetDefaultFlags(cfg engine.WriterConfig) (*pflag.FlagSet, interface{}) {
 		pluginWriter = new(stdin.Writer)
 	case "nil":
 		pluginWriter = new(ni.Writer)
+	case "file":
+		pluginWriter = new(fi.Writer)
 	}
 	if pluginWriter != nil {
 		return pluginWriter.GetDefaultFlags()
@@ -57,6 +62,8 @@ func RenderPluginConfig(cfgViper *viper.Viper, cfg engine.WriterConfig, renew bo
 			result = new(stdin.Writer).CreatePluginConfig()
 		case "nil":
 			result = new(ni.Writer).CreatePluginConfig()
+		case "file":
+			result = new(fi.Writer).CreatePluginConfig()
 		}
 	}
 

@@ -239,6 +239,13 @@ type ColumnSpec struct {
 	Max           float64 `json:"max"`
 	IsRounded     bool    `json:"is-rounded"`
 	DecimalPlaces uint    `json:"decimal-places"`
+	ForceNumeric  bool    `json:"force-numeric"`
+	NumericLength int    `json:"numeric-length"`
+	RangedDate    bool `json:"ranged-date"`
+	DateStart	 string  `json:"date-start"`
+	DateEnd		 string  `json:"date-end"`
+	Fixed        bool  `json:"fixed"`
+	FixedValue   string `json:"fixed-value"`
 }
 
 type ColumnSpecs []*ColumnSpec

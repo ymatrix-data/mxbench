@@ -11,6 +11,8 @@ const (
 	_PLATE_TEMPLATE   = "plate_template"
 	_VIN_TEMPLATE     = "vin_template"
 
+	_split_branch_template = "split_branch"
+
 	// 'I','O','Q' is not allowed, see https://en.wikipedia.org/wiki/Vehicle_identification_number
 	// Just a rough implementation, see https://github.com/yanigisawa/VinGenerator for a full version
 	_VIN_CHARSET = "1234567890ABCDEFGHJKLMNPRSTUVWXYZ"
@@ -23,10 +25,13 @@ var loc = []string{
 	"澳", "台", "皖", "冀",
 }
 
+var provinces = []string{"BJ", "TJ", "HE", "SX", "NM", "LN", "JL", "HL", "SH", "JS", "ZJ", "AH", "FJ", "JX", "SD", "HA", "HB", "HN", "GD", "GX", "HI", "CQ", "SC", "GZ", "YN", "XZ", "SN", "GS", "QH", "NX", "XJ"}
+
 var validTemplateNames = []string{
 	_LICENSE_TEMPLATE,
 	_PLATE_TEMPLATE,
 	_VIN_TEMPLATE,
+	_split_branch_template,
 }
 
 func IsValidTemplateName(templateName string) bool {
@@ -44,6 +49,8 @@ func GenerateValByTemplate(templateName string) string {
 		return randomLicenseTemplate()
 	case _VIN_TEMPLATE:
 		return randomVinTemplate()
+	case _split_branch_template:
+		return randomSplitBranch()
 	default:
 	}
 
@@ -61,4 +68,11 @@ func randomLicenseTemplate() string {
 
 func randomVinTemplate() string {
 	return util.StringWithCharset(17, _VIN_CHARSET)
+}
+
+func randomSplitBranch() string {
+	var branch [9]byte
+	copy(branch[:], provinces[util.Intn(len(provinces))])
+	copy(branch[2:], "0000000")
+	return string(branch[:])
 }
